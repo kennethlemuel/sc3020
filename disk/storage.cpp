@@ -1,64 +1,81 @@
 #include <iostream>
 #include <cstdlib>   
-#include <vector>   
+#include <fstream>    
 
 using namespace std;
 
-struct Record {
-    string game_date;
-    int team_id_home;
-    int pts_home;
-    float fg_pct_home;
-    float ft_pct_home;
-    float fg3_pct_home;
-    int ast_home;
-    int reb_home;
-    bool home_team_wins;
-};
-
-
 class Disk {
 public:
-    Disk(size_t size, size_t blkSize, size_t recordSize);  
-    ~Disk();                                               
+    Disk(size_t totalSize, size_t blockSize);
+    ~Disk();
 
-    bool allocateBlock();                                  
-    Record* writeRecord(const Record& record);             
+    bool allocateBlock();
+    void initializeDisk();
 
-    size_t getBlkMaxRecords() const;                       
-    size_t getNumBlks() const;                             
-    size_t getTotalRecords() const;                        
+    size_t getTotalSize() const;
+    size_t getBlockSize() const;
+    size_t getNumBlocks() const;
 
 private:
-    unsigned char* startAddress;                           
-    size_t size;                                           
-    size_t blkSize;                                        
-    size_t recordSize;                                     
-    size_t numUsedBlks;                                    
-    size_t curBlkUsedMem;                                  
-    size_t totalRecords;                                   
+    unsigned char* startAddress;
+    size_t totalSize;
+    size_t blockSize;
+    size_t usedBlocks;
 };
 
-Disk::Disk(size_t size, size_t blkSize, size_t recordSize) {
-    startAddress = (unsigned char*)malloc(size);  
-    this->size = size;
-    this->blkSize = blkSize;
-    this->recordSize = recordSize;
-    numUsedBlks = 0;
-    curBlkUsedMem = 0;
-    totalRecords = 0;
+Disk::Disk(size_t totalSize, size_t blockSize) {
+    startAddress = (unsigned char*)malloc(totalSize);
+    this->totalSize = totalSize;
+    this->blockSize = blockSize;
+    usedBlocks = 0;
 }
 
 Disk::~Disk() {
-    free(startAddress);  
+    free(startAddress);
 }
 
 bool Disk::allocateBlock() {
-    if ((numUsedBlks + 1) * blkSize > size) {  
-        cout << "Disk full: Cannot allocate more blocks!" << endl;
+    if ((usedBlocks + 1) * blockSize > totalSize) {
+        cout << "Error: Not enough space to allocate more blocks." << endl;
         return false;
     }
-    numUsedBlks++;      
-    curBlkUsedMem = 0;  
+    usedBlocks++;
     return true;
+}
+
+void Disk::initializeDisk() {
+    cout << "Initializing disk storage with block size: " << blockSize << " bytes." << endl;
+    size_t totalBlocks = totalSize / blockSize;
+    cout << "Total blocks that can be allocated: " << totalBlocks << endl;
+    
+    for (size_t i = 0; i < totalBlocks / 2; i++) {
+        if (!allocateBlock()) break;
+    }
+    cout << usedBlocks << " blocks have been initialized and allocated for disk storage." << endl;
+}
+
+size_t Disk::getTotalSize() const {
+    return totalSize;
+}
+
+size_t Disk::getBlockSize() const {
+    return blockSize;
+}
+
+size_t Disk::getNumBlocks() const {
+    return usedBlocks;
+}
+
+int main() {
+    size_t diskSize = 1024 * 1024 * 10;
+    size_t blockSize = 4096;
+
+    Disk disk(diskSize, blockSize);
+    disk.initializeDisk();
+
+    cout << "Disk size: " << disk.getTotalSize() << " bytes" << endl;
+    cout << "Block size: " << disk.getBlockSize() << " bytes" << endl;
+    cout << "Blocks used: " << disk.getNumBlocks() << endl;
+
+    return 0;
 }
