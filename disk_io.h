@@ -54,7 +54,7 @@ int readFileIntoDisk(std::string fileName, Disk* disk, size_t bufferSize = 100) 
 
         if (recordBuffer.size() == bufferSize) {
             for (const Record& r : recordBuffer) {
-                disk->writerecord(r);
+                disk->writeRecord(r);
             }
             recordBuffer.clear(); 
         }
@@ -62,7 +62,7 @@ int readFileIntoDisk(std::string fileName, Disk* disk, size_t bufferSize = 100) 
 
     if (!recordBuffer.empty()) {
         for (const Record& r : recordBuffer) {
-            disk->writerecord(r);
+            disk->writeRecord(r);
         }
     }
 

@@ -12,6 +12,7 @@ public:
     bool allocateBlock();
     void initializeDisk();
     bool storeRecord(Record record);
+    Record* writeRecord(Record record);
 
     size_t getTotalSize() const;
     size_t getBlockSize() const;
