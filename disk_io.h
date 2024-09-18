@@ -1,9 +1,14 @@
+#ifndef UTILS_H
+#define UTILS_H
+
+#include "disk/storage.h"
+#include "struct.h"
+
 #include <vector>
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include "disk/storage.h"
-#include "struct.h"
+
 
 int readFileIntoDisk(std::string fileName, Disk* disk, size_t bufferSize = 100) {
     std::ifstream inputFile(fileName);
@@ -13,7 +18,7 @@ int readFileIntoDisk(std::string fileName, Disk* disk, size_t bufferSize = 100) 
     }
 
     std::vector<Record> recordBuffer;
-    recordBuffer.reserve(bufferSize);  // Reserve space in the vector to avoid resizing
+    recordBuffer.reserve(bufferSize);  
 
     std::string line;
     int numOfRecords = 0;
