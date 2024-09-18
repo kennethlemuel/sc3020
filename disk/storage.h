@@ -10,6 +10,11 @@ public:
 
     bool allocateBlock();
     void initializeDisk();
+<<<<<<< Updated upstream
+=======
+    bool storeRecord(Record record);
+    Record *writerecord(Record record);
+>>>>>>> Stashed changes
 
     size_t getTotalSize() const;
     size_t getBlockSize() const;
