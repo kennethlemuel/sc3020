@@ -2,12 +2,14 @@
 #include <iostream>
 #include <cstdlib>
 
-Disk::Disk(size_t totalSize, size_t blockSize) {
+Disk::Disk(size_t totalSize, size_t blockSize, size_t recordSize) {
     startAddress = (unsigned char*)malloc(totalSize);
     this->totalSize = totalSize;
     this->blockSize = blockSize;
+    this->recordSize = recordSize;
     usedBlocks = 0;
     usedBlockMemory = 0;
+    numRecords = 0;
 }
 
 Disk::~Disk() {
@@ -32,9 +34,9 @@ void Disk::initializeDisk() {
     size_t totalBlocks = totalSize / blockSize;
     std::cout << "Total blocks that can be allocated: " << totalBlocks << std::endl;
 
-    for (size_t i = 0; i < totalBlocks / 2; i++) {
+    /*for (size_t i = 0; i < totalBlocks / 2; i++) {
         if (!allocateBlock()) break;
-    }
+    }*/
     std::cout << usedBlocks << " blocks have been initialized and allocated for disk storage." << std::endl;
 }
 
@@ -77,6 +79,7 @@ size_t Disk::getNumRecords() const {
     return numRecords;
 }
 
+// Get number of records stored in current block
 size_t Disk::getNumRecordsInBlock() const{
     return numRecordsInBlock;
 }

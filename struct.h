@@ -1,9 +1,11 @@
 #ifndef STRUCT_H
 #define STRUCT_H
 
+#include <string>
+
 // Structure of a record from database
 struct Record{
-    unsigned int GAME_DATE_EST;
+    std::string GAME_DATE_EST;
     unsigned int TEAM_ID_home;
     unsigned int PTS_home;
     float FG_PCT_home;

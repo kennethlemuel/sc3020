@@ -6,7 +6,7 @@
 
 class Disk {
 public:
-    Disk(size_t totalSize, size_t blockSize);
+    Disk(size_t totalSize, size_t blockSize, size_t recordSize);
     ~Disk();
 
     bool allocateBlock();
