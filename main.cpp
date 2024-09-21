@@ -14,12 +14,9 @@ int main() {
     std::cout << "Block size: " << disk.getBlockSize() << " bytes" << std::endl;
     std::cout << "Record size: " << disk.getRecordSize() << " bytes" << std::endl;
     std::cout << "Blocks used: " << disk.getNumBlocks() << std::endl;
-<<<<<<< Updated upstream
-=======
     std::cout << "Number of records in one block: " << disk.getNumRecordsInBlock() << std::endl;
     std::cout << "Number of records: " << disk.getNumRecords() << std::endl;
     std::cout << std::endl;
->>>>>>> Stashed changes
 
     return 0;
 }
