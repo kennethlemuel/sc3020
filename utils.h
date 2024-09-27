@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 #include "disk/storage.h"
 
@@ -10,51 +11,57 @@ using namespace std;
 
 namespace utils
 {
-    int readRecords(std::string fileName)
+    int readRecords(string fileName, Disk *disk)
     {
-        ifstream inputFile;
-        inputFile.open(fileName);
-        if (!inputFile.is_open())
+        string line;
+        int numRecords = 0;
+
+        ifstream file;
+        file.open(fileName);
+
+        if (!file.is_open())
         {
-            cout << "File failed to Open" << endl;
+            cout << "Error: Unable to open file!" << endl;
             return 0;
         }
-        string line;
-        int numOfRecords = 0;
-        getline(inputFile, line);
-        while (getline(inputFile, line))
-        {
-            // istringstream iss(line);
-            // string GAME_DATE_EST, TEAM_ID_home, PTS_home, FG_PCT_home, FT_PCT_home, FG3_PCT_home, AST_home, REB_home, HOME_TEAM_WINS;
-            // getline(iss, GAME_DATE_EST, '\t');
-            // getline(iss, TEAM_ID_home, '\t');
-            // getline(iss, PTS_home, '\t');
-            // getline(iss, FG_PCT_home, '\t');
-            // getline(iss, FT_PCT_home, '\t');
-            // getline(iss, FG3_PCT_home, '\t');
-            // getline(iss, AST_home, '\t');
-            // getline(iss, REB_home, '\t');
-            // getline(iss, HOME_TEAM_WINS, '\t');
 
-            // // Check if the record is relevant (PTS_home field should not be empty)
-            // if (PTS_home == "")
-            //     continue;
-            // Record record = {
-            //     stof(FG_PCT_home),
-            //     stof(FT_PCT_home),
-            //     stof(FG3_PCT_home),
-            //     stoul(TEAM_ID_home),
-            //     usint(dateStringToDaysSinceEpoch(GAME_DATE_EST)),
-            //     static_cast<char>(stoi(PTS_home)),
-            //     static_cast<char>(stoi(AST_home)),
-            //     static_cast<char>(stoi(REB_home)),
-            //     HOME_TEAM_WINS == "1" ? true : false};
-            // Record *recordPtr = (*disk).writeRecord(record);
+        getline(file, line); // discard header
+        int i;
+
+        while (getline(file, line))
+        {
+            istringstream iss(line);
+            string GAME_DATE_EST, TEAM_ID_home, PTS_home, FG_PCT_home, FT_PCT_home, FG3_PCT_home, AST_home, REB_home, HOME_TEAM_WINS;
+            getline(iss, GAME_DATE_EST, '\t');
+            getline(iss, TEAM_ID_home, '\t');
+            getline(iss, PTS_home, '\t');
+            getline(iss, FG_PCT_home, '\t');
+            getline(iss, FT_PCT_home, '\t');
+            getline(iss, FG3_PCT_home, '\t');
+            getline(iss, AST_home, '\t');
+            getline(iss, REB_home, '\t');
+            getline(iss, HOME_TEAM_WINS, '\t');
+
+            // Check if the record is relevant (PTS_home field should not be empty)
+            if (PTS_home == "")
+                continue;
+
+            Record record = {
+                GAME_DATE_EST,
+                stoi(TEAM_ID_home),
+                stoi(PTS_home),
+                stof(FG_PCT_home),
+                stof(FT_PCT_home),
+                stof(FG3_PCT_home),
+                stoi(AST_home),
+                stoi(REB_home),
+                stoi(HOME_TEAM_WINS)};
+            Record *recordPtr = (*disk).storeRecord(record);
             // tree->insert(record.fg3_pct_home, recordPtr);
-            numOfRecords++;
+            numRecords++;
         }
-        inputFile.close();   // Close the input file
-        return numOfRecords; // Return the total number of records processed
+        file.close();      // Close the input file
+        return numRecords; // Return the total number of records processed
     }
 }
 

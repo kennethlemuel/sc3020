@@ -2,16 +2,17 @@
 #define STORAGE_H
 
 #include "../struct.h"
-#include <cstddef> 
+#include <cstddef>
 
-class Disk {
+class Disk
+{
 public:
     Disk(size_t totalSize, size_t blockSize, size_t recordSize);
     ~Disk();
 
     bool allocateBlock();
     void initializeDisk();
-    bool storeRecord(Record record);
+    Record *storeRecord(Record record);
 
     size_t getTotalSize() const;
     size_t getBlockSize() const;
@@ -21,13 +22,13 @@ public:
     size_t getNumRecordsInBlock() const;
 
 private:
-    unsigned char* startAddress;
+    unsigned char *startAddress;
     size_t totalSize;
     size_t blockSize;
-    size_t usedBlocks; // number of blocks used
+    size_t usedBlocks;      // number of blocks used
     size_t usedBlockMemory; // amount of memory used in current block
-    size_t recordSize; 
-    size_t numRecords; // number of records
+    size_t recordSize;
+    size_t numRecords;        // number of records
     size_t numRecordsInBlock; // number of records in current block
 };
 

@@ -3,30 +3,37 @@
 
 #include <iostream>
 #include <string>
+#include <math.h>
 
 using namespace std;
 
 void task1(Disk *disk /*, BPTree *tree*/, string fileName)
 {
     cout << "Running Task 1:" << endl;
+    cout << "Size of a record: " << sizeof(Record) << " bytes" << endl;
+    cout << "Number of records: " << utils::readRecords(fileName, disk) << endl;
+    cout << "Number of records stored in a block: " << floor(disk->getBlockSize() / sizeof(Record)) << endl;
+    cout << "Number of blocks used for storing data: " << disk->getNumBlocks() << endl;
+    cout << endl;
 }
 
 int main()
 {
     size_t diskSize = 1024 * 1024 * 10;
     size_t blockSize = 4096;
-    std::cout << "Hello" << std::endl;
+    cout << "Hello" << endl;
 
     Disk *disk = new Disk(diskSize, blockSize, sizeof(Record));
     disk->initializeDisk();
 
-    std::cout << "Disk size: " << disk->getTotalSize() << " bytes" << std::endl;
-    std::cout << "Block size: " << disk->getBlockSize() << " bytes" << std::endl;
-    std::cout << "Record size: " << disk->getRecordSize() << " bytes" << std::endl;
-    std::cout << "Blocks used: " << disk->getNumBlocks() << std::endl;
-    std::cout << "Number of records in one block: " << disk->getNumRecordsInBlock() << std::endl;
-    std::cout << "Number of records: " << utils::readRecords("games.txt") /*disk->getNumRecords()*/ << std::endl;
-    std::cout << std::endl;
+    task1(disk, "games.txt");
+
+    cout << "Disk size: " << disk->getTotalSize() << " bytes" << endl;
+    cout << "Block size: " << disk->getBlockSize() << " bytes" << endl;
+    cout << "Record size: " << disk->getRecordSize() << " bytes" << endl;
+    cout << "Blocks used: " << disk->getNumBlocks() << endl;
+    cout << "Number of records in last block: " << disk->getNumRecordsInBlock() << endl;
+    cout << endl;
 
     return 0;
 }
