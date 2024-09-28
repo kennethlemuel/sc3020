@@ -19,6 +19,16 @@ void task1(Disk *disk, BPTree *bp_tree, string fileName)
     cout << endl;
 }
 
+void task2(BPTree *bp_tree)
+{
+    cout << "Running Task 2:" << endl;
+}
+
+void task3(BPTree *bp_tree)
+{
+    cout << "Running Task 3:" << endl;
+}
+
 int main()
 {
     cout << "Hello" << endl;
@@ -28,6 +38,8 @@ int main()
     BPTree *bp_tree = new BPTree(400);
 
     task1(disk, bp_tree, FILE_NAME);
+    task2(bp_tree);
+    task3(bp_tree);
 
     cout << "Disk size: " << disk->getTotalSize() << " bytes" << endl;
     cout << "Block size: " << disk->getBlockSize() << " bytes" << endl;
