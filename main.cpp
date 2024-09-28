@@ -1,24 +1,11 @@
 #include "disk/storage.h"
-<<<<<<< Updated upstream
-=======
 #include "utils.h"
 #include "bptree/bp_tree.h"
 
->>>>>>> Stashed changes
 #include <iostream>
+#include <string>
+#include <math.h>
 
-<<<<<<< Updated upstream
-int main() {
-    size_t diskSize = 1024 * 1024 * 10;
-    size_t blockSize = 4096;
-
-    Disk disk(diskSize, blockSize);
-    disk.initializeDisk();
-
-    std::cout << "Disk size: " << disk.getTotalSize() << " bytes" << std::endl;
-    std::cout << "Block size: " << disk.getBlockSize() << " bytes" << std::endl;
-    std::cout << "Blocks used: " << disk.getNumBlocks() << std::endl;
-=======
 using namespace std;
 
 void task1(Disk *disk, BPTree *bp_tree, string fileName)
@@ -28,6 +15,7 @@ void task1(Disk *disk, BPTree *bp_tree, string fileName)
     cout << "Number of records: " << utils::readRecords(fileName, disk, bp_tree) << endl;
     cout << "Number of records stored in a block: " << floor(disk->getBlockSize() / sizeof(Record)) << endl;
     cout << "Number of blocks used for storing data: " << disk->getNumBlocks() << endl;
+    bp_tree->printTree();
     cout << endl;
 }
 
@@ -47,7 +35,6 @@ int main()
     cout << "Blocks used: " << disk->getNumBlocks() << endl;
     cout << "Number of records in last block: " << disk->getNumRecordsInBlock() << endl;
     cout << endl;
->>>>>>> Stashed changes
 
     return 0;
 }

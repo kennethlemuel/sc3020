@@ -15,7 +15,7 @@ Node *BPTree::searchNode(float key)
     {
         // Find the index where the key would be inserted in the current node's keys
         idx = std::upper_bound(curNode->keys.begin(), curNode->keys.end(), key) - curNode->keys.begin();
-        curNode = curNode->ptrs.at(idx);
+        curNode = curNode->ptrBlk.at(idx);
         this->numNodesAcc++;
     }
     return curNode;
@@ -36,7 +36,7 @@ std::vector<Record *> *BPTree::searchRecord(float key)
     {
         // Find the index of the next child node to traverse
         idx = std::upper_bound(curNode->keys.begin(), curNode->keys.end(), key) - curNode->keys.begin();
-        curNode = curNode->ptrs.at(idx);
+        curNode = curNode->ptrBlk.at(idx);
         this->numNodesAcc++;
     }
 
@@ -44,6 +44,6 @@ std::vector<Record *> *BPTree::searchRecord(float key)
     idx = std::lower_bound(curNode->keys.begin(), curNode->keys.end(), key) - curNode->keys.begin();
     // If the key is found, return a pointer to the associated records
     if (idx < curNode->keys.size() && curNode->keys.at(idx) == key)
-        return &(curNode->records.at(idx));
+        return &(curNode->ptrRec.at(idx));
     return nullptr;
 }

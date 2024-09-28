@@ -7,10 +7,10 @@ class BPTree
 {
 private:
     Node *root;
-    int maxKeys;
-    int numNodes;
-    int depth;
-    size_t blkSize;
+    int depth;       // current number of layers in the tree
+    int noOfNodes;   // current number of nodes in the tree
+    int maxKeys;     // maximum number of keys in one node
+    size_t nodeSize; // size of one node
     int numNodesAcc; // number of nodes accessed during operations
 
 public:
@@ -22,7 +22,7 @@ public:
 
     int getMaxKeys() { return maxKeys; }
 
-    int getNumNodes() { return numNodes; }
+    int getNumNodes() { return noOfNodes; }
 
     int getDepth() { return depth; }
 

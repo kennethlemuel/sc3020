@@ -5,13 +5,14 @@
 
 using namespace std;
 
-BPTree::BPTree(int blkSize)
+BPTree::BPTree(int nodeSize)
 {
-    this->root = nullptr;
-    this->blkSize = blkSize;
-    this->maxKeys = (blkSize - sizeof(float *)) / (sizeof(float) + sizeof(float *));
-    this->numNodes = 0;
-    this->depth = 0;
+    root = nullptr;
+    depth = 0;
+    noOfNodes = 0;
+    this->nodeSize = nodeSize;
+    this->maxKeys = (nodeSize - sizeof(float *)) / (sizeof(float) + sizeof(float *));
+    numNodesAcc = 0;
 }
 
 BPTree::~BPTree() {}
@@ -31,7 +32,7 @@ void BPTree::setRoot(Node *r)
 
 void BPTree::printTree()
 {
-    std::queue<Node *> q;
+    queue<Node *> q;
     q.push(root);
     while (!q.empty())
     {
@@ -44,10 +45,10 @@ void BPTree::printTree()
             // if internal node, push child nodes into queue
             if (!node->isLeaf)
             {
-                for (Node *child : node->ptrs)
+                for (Node *child : node->ptrBlk)
                     q.push(child);
             }
         }
-        std::cout << std::endl;
+        cout << endl;
     }
 }

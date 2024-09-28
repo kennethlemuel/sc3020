@@ -15,11 +15,11 @@ void BPTree::insert(float key, Record *recordPtr)
     if (this->root == nullptr)
     {
         this->root = new Node(true);
-        this->numNodes++;
+        this->noOfNodes++;
         this->depth++;
         this->root->keys.push_back(key);
-        this->root->records.push_back(std::vector<Record *>(1, recordPtr));
-        this->root->nextNodePtr = nullptr;
+        this->root->ptrRec.push_back(std::vector<Record *>(1, recordPtr));
+        this->root->nextPtr = nullptr;
         return;
     }
     // Traverse the tree to find the leaf node where the key should be inserted
@@ -31,13 +31,13 @@ void BPTree::insert(float key, Record *recordPtr)
     {
         // Find the index where the key should be inserted in the current node
         idx = std::upper_bound(currNode->keys.begin(), currNode->keys.end(), key) - currNode->keys.begin();
-        parNodes.push_back(currNode);      // Store the parent node
-        currNode = currNode->ptrs.at(idx); // Move to the next node
+        parNodes.push_back(currNode);        // Store the parent node
+        currNode = currNode->ptrBlk.at(idx); // Move to the next node
     }
     // Insert the key and record into the leaf node at the sorted index
     idx = std::upper_bound(currNode->keys.begin(), currNode->keys.end(), key) - currNode->keys.begin();
     currNode->keys.insert(currNode->keys.begin() + idx, key);
-    currNode->records.insert(currNode->records.begin() + idx, std::vector<Record *>(1, recordPtr));
+    currNode->ptrRec.insert(currNode->ptrRec.begin() + idx, std::vector<Record *>(1, recordPtr));
     // If the leaf node has exceeded the maximum number of keys
     if (currNode->keys.size() > this->maxKeys)
     {
@@ -52,7 +52,7 @@ void BPTree::insert(float key, Record *recordPtr)
             // Insert the key and the new node into the parent node
             idx = std::upper_bound(parNode->keys.begin(), parNode->keys.end(), key) - parNode->keys.begin();
             parNode->keys.insert(parNode->keys.begin() + idx, key);
-            parNode->ptrs.insert(parNode->ptrs.begin() + idx + 1, newNode);
+            parNode->ptrBlk.insert(parNode->ptrBlk.begin() + idx + 1, newNode);
             // Split the internal node and update the current node and parent node
             newNode = this->splitInternalNode(parNode, &key);
             currNode = parNode;
@@ -64,10 +64,10 @@ void BPTree::insert(float key, Record *recordPtr)
         {
             // If the root node has been reached, create a new root node
             parNode = new Node(false);
-            this->numNodes++;
+            this->noOfNodes++;
             parNode->keys.push_back(key);
-            parNode->ptrs.push_back(currNode);
-            parNode->ptrs.push_back(newNode);
+            parNode->ptrBlk.push_back(currNode);
+            parNode->ptrBlk.push_back(newNode);
             this->root = parNode;
             this->depth++;
             return;
@@ -77,7 +77,7 @@ void BPTree::insert(float key, Record *recordPtr)
             // If the parent node is not full, insert the key and the new node into it
             idx = std::upper_bound(parNode->keys.begin(), parNode->keys.end(), key) - parNode->keys.begin();
             parNode->keys.insert(parNode->keys.begin() + idx, key);
-            parNode->ptrs.insert(parNode->ptrs.begin() + idx + 1, newNode);
+            parNode->ptrBlk.insert(parNode->ptrBlk.begin() + idx + 1, newNode);
         }
     }
 }
@@ -86,7 +86,7 @@ void BPTree::insert(float key, Record *recordPtr)
 Node *BPTree::splitLeafNode(Node *currNode)
 {
     Node *splitNode = new Node(true);
-    this->numNodes++;
+    this->noOfNodes++;
     // Move half of the keys and records from the current node to the split node
     for (int i = 0; i < (this->maxKeys + 1) / 2; i++)
     {
@@ -94,13 +94,13 @@ Node *BPTree::splitLeafNode(Node *currNode)
         splitNode->keys.insert(splitNode->keys.begin(), currNode->keys.back());
         currNode->keys.pop_back();
         // Move the record from the back of the current node to the front of the split node
-        splitNode->records.insert(splitNode->records.begin(), currNode->records.back());
-        currNode->records.pop_back();
+        splitNode->ptrRec.insert(splitNode->ptrRec.begin(), currNode->ptrRec.back());
+        currNode->ptrRec.pop_back();
     }
     // Update the next node pointer of the split node to the next node pointer of the current node
-    splitNode->nextNodePtr = currNode->nextNodePtr;
+    splitNode->nextPtr = currNode->nextPtr;
     // Update the next node pointer of the current node to the split node
-    currNode->nextNodePtr = splitNode;
+    currNode->nextPtr = splitNode;
     return splitNode;
 }
 
@@ -108,18 +108,18 @@ Node *BPTree::splitLeafNode(Node *currNode)
 Node *BPTree::splitInternalNode(Node *currNode, float *key)
 {
     Node *splitNode = new Node(false);
-    this->numNodes++;
+    this->noOfNodes++;
     // Move the second half of the keys and pointers from the current node to the split node
     for (int i = 0; i < this->maxKeys / 2; i++)
     {
         splitNode->keys.insert(splitNode->keys.begin(), currNode->keys.back());
         currNode->keys.pop_back();
-        splitNode->ptrs.insert(splitNode->ptrs.begin(), currNode->ptrs.back());
-        currNode->ptrs.pop_back();
+        splitNode->ptrBlk.insert(splitNode->ptrBlk.begin(), currNode->ptrBlk.back());
+        currNode->ptrBlk.pop_back();
     }
     // Move the last pointer from the current node to the split node
-    splitNode->ptrs.insert(splitNode->ptrs.begin(), currNode->ptrs.back());
-    currNode->ptrs.pop_back();
+    splitNode->ptrBlk.insert(splitNode->ptrBlk.begin(), currNode->ptrBlk.back());
+    currNode->ptrBlk.pop_back();
     // Update the key that separates the current node and the split node
     *key = currNode->keys.back();
     currNode->keys.pop_back();
