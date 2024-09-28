@@ -1,7 +1,12 @@
 #ifndef STORAGE_H
 #define STORAGE_H
 
+<<<<<<< Updated upstream
 #include <cstddef> 
+=======
+#include "../constants.h"
+#include <cstddef>
+>>>>>>> Stashed changes
 
 class Disk {
 public:
