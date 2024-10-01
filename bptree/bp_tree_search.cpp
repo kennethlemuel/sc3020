@@ -1,6 +1,7 @@
 #include "bp_tree.h"
 #include "../constants.h"
 #include <algorithm>
+using namespace std;
 
 Node *BPTree::searchNode(float key)
 {
@@ -43,7 +44,8 @@ std::vector<Record *> *BPTree::searchRecord(float key)
     // Find the index of the key in the leaf node
     idx = std::lower_bound(curNode->keys.begin(), curNode->keys.end(), key) - curNode->keys.begin();
     // If the key is found, return a pointer to the associated records
-    if (idx < curNode->keys.size() && curNode->keys.at(idx) == key)
+    if (idx < curNode->keys.size() && curNode->keys.at(idx) == key){
         return &(curNode->ptrRec.at(idx));
+    }
     return nullptr;
 }

@@ -21,7 +21,13 @@ void task1(Disk *disk, BPTree *bp_tree, string fileName)
 
 void task2(BPTree *bp_tree)
 {
-    cout << "Running Task 2:" << endl;
+    cout << "Running Task 2: " << endl;
+    cout << "Parameter N = " << bp_tree->getMaxKeys() << endl;
+    cout << "Number of nodes = " << bp_tree->getNumNodes() << endl;
+    cout << "Number of levels = " << bp_tree->getDepth() << endl;
+    cout << "Content of Root Node: ";
+    bp_tree->printNode(bp_tree->getRoot());
+    cout << endl;
 }
 
 void task3(BPTree *bp_tree)
@@ -31,7 +37,7 @@ void task3(BPTree *bp_tree)
 
 int main()
 {
-    cout << "Hello" << endl;
+    //cout << "Hello" << endl;
 
     Disk *disk = new Disk(DISK_SIZE, BLOCK_SIZE, sizeof(Record));
     disk->initializeDisk();

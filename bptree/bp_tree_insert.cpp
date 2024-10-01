@@ -34,10 +34,11 @@ void BPTree::insert(float key, Record *recordPtr)
         parNodes.push_back(currNode);        // Store the parent node
         currNode = currNode->ptrBlk.at(idx); // Move to the next node
     }
-    // Insert the key and record into the leaf node at the sorted index
+    // If leaf node keys < max keys
     idx = std::upper_bound(currNode->keys.begin(), currNode->keys.end(), key) - currNode->keys.begin();
     currNode->keys.insert(currNode->keys.begin() + idx, key);
     currNode->ptrRec.insert(currNode->ptrRec.begin() + idx, std::vector<Record *>(1, recordPtr));
+    
     // If the leaf node has exceeded the maximum number of keys
     if (currNode->keys.size() > this->maxKeys)
     {
@@ -74,7 +75,7 @@ void BPTree::insert(float key, Record *recordPtr)
         }
         else
         {
-            // If the parent node is not full, insert the key and the new node into it
+            // parent node < max keys: insert  key and the new node into it
             idx = std::upper_bound(parNode->keys.begin(), parNode->keys.end(), key) - parNode->keys.begin();
             parNode->keys.insert(parNode->keys.begin() + idx, key);
             parNode->ptrBlk.insert(parNode->ptrBlk.begin() + idx + 1, newNode);

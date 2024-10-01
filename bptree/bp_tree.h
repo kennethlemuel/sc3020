@@ -15,9 +15,8 @@ private:
 
 public:
     BPTree(int blkSize);
-
     ~BPTree();
-
+    
     Node *getRoot() { return root; }
 
     int getMaxKeys() { return maxKeys; }
