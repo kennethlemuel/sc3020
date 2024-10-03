@@ -21,6 +21,7 @@ public:
     size_t getNumRecords() const;
     size_t getNumRecordsInBlock() const;
 
+    Record *getRecord(int blockIdx, size_t recordOffset); 
 private:
     unsigned char *startAddress;
     size_t totalSize;
