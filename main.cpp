@@ -91,7 +91,7 @@ void task3(Disk *disk, BPTree *bp_tree)
     cout << endl;
 }
 
-void bruteForceLinearScan(Disk *disk)
+void task3_bruteForceLinearScan(Disk *disk)
 {
     int noOfBlks = disk->getNumBlocks();
     size_t recordSize = sizeof(Record);
@@ -145,8 +145,9 @@ int main()
 
     task1(disk, bp_tree, FILE_NAME);
     task2(bp_tree);
+
     task3(disk, bp_tree);
-    bruteForceLinearScan(disk);
+    task3_bruteForceLinearScan(disk);
 
     cout << endl;
     cout << "Disk size: " << disk->getTotalSize() << " bytes" << endl;
