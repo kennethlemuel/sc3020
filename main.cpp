@@ -97,7 +97,8 @@ void bruteForceLinearScan(Disk *disk)
     size_t recordSize = sizeof(Record);
 
     // Init var to keep track of blks and rec accessed
-    int noOfBlksAcc, noOfRecAcc = 0;
+    int noOfBlksAcc = 0;
+    int noOfRecAcc = 0;
 
     // Starting Timer
     chrono::high_resolution_clock::time_point before = chrono::high_resolution_clock::now();
