@@ -76,11 +76,7 @@ void task3(Disk *disk, BPTree *bp_tree)
 
     float total_FG_PCT_home = 0;
 
-    for (int i = 0; i < result.size(); i++)
-    {
-        total_FG_PCT_home = total_FG_PCT_home + result[i]->FG3_PCT_home;
-        // cout << "FG3_PCT_home: " << result[i]->FG3_PCT_home << endl;
-    }
+    for (int i = 0; i < result.size(); i++) { total_FG_PCT_home += result[i]->FG3_PCT_home; }
     total_FG_PCT_home /= result.size();
 
     cout << "Running Task 3:" << endl;
