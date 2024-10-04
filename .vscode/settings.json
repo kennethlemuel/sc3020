@@ -13,6 +13,9 @@
     "xtree": "cpp",
     "xutility": "cpp",
     "iostream": "cpp",
-    "iosfwd": "cpp"
+    "iosfwd": "cpp",
+    "algorithm": "cpp",
+    "ostream": "cpp",
+    "xloctime": "cpp"
   }
 }

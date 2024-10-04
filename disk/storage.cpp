@@ -38,7 +38,7 @@ void Disk::initializeDisk()
     std::cout << "Initializing disk storage with block size: " << blockSize << " bytes." << std::endl;
     size_t totalBlocks = totalSize / blockSize;
     std::cout << "Total blocks that can be allocated: " << totalBlocks << std::endl;
-    std::cout << usedBlocks << " blocks have been initialized and allocated for disk storage." << std::endl;
+    cout << endl;
 }
 
 // Store a record
@@ -53,7 +53,7 @@ Record *Disk::storeRecord(Record record)
     // Else, update current block
     Record *recordAdd = reinterpret_cast<Record *>(startAddress + usedBlocks * blockSize + usedBlockMemory);
     // Copy the content of the record into the allocated memory location on the disk
-    memcpy(recordAdd, &record, sizeof(Record));  // Use memcpy to copy data to disk location
+    memcpy(recordAdd, &record, sizeof(Record)); // Use memcpy to copy data to disk location
 
     if (usedBlocks == 0)
     {
@@ -65,7 +65,8 @@ Record *Disk::storeRecord(Record record)
     return recordAdd;
 };
 
-Record* Disk::getRecord(int blockIdx, size_t recordOffset){
+Record *Disk::getRecord(int blockIdx, size_t recordOffset)
+{
     // in this function, we use the block index and record offset to determine the address of the corresponding record
     size_t offset = blockIdx * blockSize + recordOffset;
     return reinterpret_cast<Record *>(startAddress + offset);

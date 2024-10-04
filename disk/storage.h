@@ -6,6 +6,16 @@
 
 class Disk
 {
+private:
+    unsigned char *startAddress;
+    size_t totalSize;
+    size_t blockSize;
+    size_t usedBlocks;      // number of blocks used
+    size_t usedBlockMemory; // amount of memory used in current block
+    size_t recordSize;
+    size_t numRecords;        // number of records
+    size_t numRecordsInBlock; // number of records in current block
+
 public:
     Disk(size_t totalSize, size_t blockSize, size_t recordSize);
     ~Disk();
@@ -21,16 +31,7 @@ public:
     size_t getNumRecords() const;
     size_t getNumRecordsInBlock() const;
 
-    Record *getRecord(int blockIdx, size_t recordOffset); 
-private:
-    unsigned char *startAddress;
-    size_t totalSize;
-    size_t blockSize;
-    size_t usedBlocks;      // number of blocks used
-    size_t usedBlockMemory; // amount of memory used in current block
-    size_t recordSize;
-    size_t numRecords;        // number of records
-    size_t numRecordsInBlock; // number of records in current block
+    Record *getRecord(int blockIdx, size_t recordOffset);
 };
 
 #endif

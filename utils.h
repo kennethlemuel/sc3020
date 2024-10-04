@@ -58,7 +58,7 @@ namespace utils
                 stoi(REB_home),
                 stoi(HOME_TEAM_WINS)};
             Record *recordPtr = (*disk).storeRecord(record);
-            bp_tree->insert(record.FG3_PCT_home, recordPtr);
+            bp_tree->insertNode(record.FG3_PCT_home, recordPtr);
             numRecords++;
         }
         file.close();      // Close the input file

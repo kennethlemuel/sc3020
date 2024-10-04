@@ -2,6 +2,7 @@
 #define B_PLUS_TREE_H
 
 #include "../constants.h"
+using namespace std;
 
 class BPTree
 {
@@ -16,45 +17,29 @@ private:
 public:
     BPTree(int blkSize);
     ~BPTree();
-    
+
     Node *getRoot() { return root; }
-
-    int getMaxKeys() { return maxKeys; }
-
-    int getNumNodes() { return noOfNodes; }
-
     int getDepth() { return depth; }
+    int getNumNodes() { return noOfNodes; }
+    int getMaxKeys() { return maxKeys; }
+    int getNumNodesAcc() { return numNodesAcc; }
 
-    Node *searchNode(float key);
-
-    void setRoot(Node *node);
-
-    void insert(float key, Record *recordPtr);
-
-    std::vector<Record *> *searchRecord(float key);
-    // returns a pointer to a vector containing Record pointers
-
-    void printTree();
+    // Insert Functions
+    void insertNode(float key, Record *recordPointer);
 
     Node *splitLeafNode(Node *currNode);
 
     Node *splitInternalNode(Node *currNode, float *key);
 
-    void deleteKey(float key);
+    // Search Functions
+    Node *searchNode(float key);
 
-    Node *findParentNode(Node *currNode, Node *childNode);
+    vector<Record *> *searchRecord(float key);
 
-    void removeInternal(int key, Node *parentNode, Node *nodeToDelete);
-
-    void updateParentKeys(Node *currNode, Node *parentNode, int parentIndex, std::vector<Node *> &parents, std::vector<int> &prevIndexs);
-
+    // Miscelleanous
     void printNode(Node *node);
 
-    void resetNumNodesAcc() { this->numNodesAcc = 0; }
-
-    int getNumNodesAcc() { return numNodesAcc; }
-
-    void deleteRecordsBelowThreshold(Node *root, float threshold);
+    void resetNumNodesAcc() { numNodesAcc = 0; }
 };
 
 #endif

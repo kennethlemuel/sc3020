@@ -16,7 +16,7 @@ void task1(Disk *disk, BPTree *bp_tree, string fileName)
     cout << "Number of records: " << utils::readRecords(fileName, disk, bp_tree) << endl;
     cout << "Number of records stored in a block: " << floor(disk->getBlockSize() / sizeof(Record)) << endl;
     cout << "Number of blocks used for storing data: " << disk->getNumBlocks() << endl;
-    bp_tree->printTree();
+    cout << "End of Task 1" << endl;
     cout << endl;
 }
 
@@ -28,6 +28,7 @@ void task2(BPTree *bp_tree)
     cout << "Number of levels = " << bp_tree->getDepth() << endl;
     cout << "Content of Root Node: ";
     bp_tree->printNode(bp_tree->getRoot());
+    cout << "End of Task 2" << endl;
     cout << endl;
 }
 
@@ -50,11 +51,10 @@ void task3(Disk *disk, BPTree *bp_tree)
         upperIndexVal = lower_bound(keys.begin(), keys.end(), upper) - keys.begin();
         for (int i = lowerIndexVal; i <= upperIndexVal - 1; i++)
         {
-            for (int j = 0; j < resultNode->ptrRec[i].size(); j++)
+            for (int j = 0; j < resultNode->leafPointers[i].size(); j++)
             {
-                result.push_back(resultNode->ptrRec[i][j]);
+                result.push_back(resultNode->leafPointers[i][j]);
             }
-            // cout << "-----------------------------------------------" << i << endl;
         }
         upperIndexVal = upperIndexVal == keys.size() ? upperIndexVal - 1 : upperIndexVal;
         if (keys.at(upperIndexVal) >= upper)
@@ -63,7 +63,7 @@ void task3(Disk *disk, BPTree *bp_tree)
         }
         else
         {
-            resultNode = resultNode->nextPtr;
+            resultNode = resultNode->nextPointer;
             if (resultNode == nullptr)
             {
                 break;
@@ -76,7 +76,10 @@ void task3(Disk *disk, BPTree *bp_tree)
 
     float total_FG_PCT_home = 0;
 
-    for (int i = 0; i < result.size(); i++) { total_FG_PCT_home += result[i]->FG3_PCT_home; }
+    for (int i = 0; i < result.size(); i++)
+    {
+        total_FG_PCT_home += result[i]->FG3_PCT_home;
+    }
     total_FG_PCT_home /= result.size();
 
     cout << "Running Task 3:" << endl;
@@ -84,6 +87,7 @@ void task3(Disk *disk, BPTree *bp_tree)
     cout << "Number of data blocks accessed = " << result.size() << endl;
     cout << "Average FG3_PCT_home = " << total_FG_PCT_home << endl;
     cout << "Running time for retrieval process = " << timeTaken.count() << "s" << endl;
+    cout << "End of Task 3" << endl;
     cout << endl;
 }
 
@@ -133,25 +137,14 @@ void task3_bruteForceLinearScan(Disk *disk)
 
 int main()
 {
-    // cout << "Hello" << endl;
-
     Disk *disk = new Disk(DISK_SIZE, BLOCK_SIZE, sizeof(Record));
     disk->initializeDisk();
-    BPTree *bp_tree = new BPTree(400);
+    BPTree *bp_tree = new BPTree(BLOCK_SIZE);
 
     task1(disk, bp_tree, FILE_NAME);
     task2(bp_tree);
-
     task3(disk, bp_tree);
     task3_bruteForceLinearScan(disk);
-
-    cout << endl;
-    cout << "Disk size: " << disk->getTotalSize() << " bytes" << endl;
-    cout << "Block size: " << disk->getBlockSize() << " bytes" << endl;
-    cout << "Record size: " << disk->getRecordSize() << " bytes" << endl;
-    cout << "Blocks used: " << disk->getNumBlocks() << endl;
-    cout << "Number of records in last block: " << disk->getNumRecordsInBlock() << endl;
-    cout << endl;
 
     return 0;
 }

@@ -26,11 +26,11 @@ typedef struct Record
 
 typedef struct Node
 {
-    bool isLeaf;                     // indicates whether this node is a leaf or internal node
-    vector<float> keys;              // array of records
-    vector<Node *> ptrBlk;           // array of pointers to child nodes (for internal nodes)
-    vector<vector<Record *>> ptrRec; // array of pointers to records (for leaf nodes)
-    Node *nextPtr;                   // pointer to next node (for leaf nodes)
+    bool isLeaf;                           // indicates whether this node is a leaf or internal node
+    vector<float> keys;                    // array of records
+    vector<Node *> pointers;               // array of pointers to child nodes (for internal nodes)
+    vector<vector<Record *>> leafPointers; // array of pointers to records (for leaf nodes)
+    Node *nextPointer;                     // pointer to next node (for leaf nodes)
 
     Node(bool isLeaf)
     {
