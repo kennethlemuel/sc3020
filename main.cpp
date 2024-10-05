@@ -87,7 +87,6 @@ void task3(Disk *disk, BPTree *bp_tree)
     cout << "Number of data blocks accessed = " << result.size() << endl;
     cout << "Average FG3_PCT_home = " << total_FG_PCT_home << endl;
     cout << "Running time for retrieval process = " << timeTaken.count() << "s" << endl;
-    cout << "End of Task 3" << endl;
     cout << endl;
 }
 
@@ -133,6 +132,7 @@ void task3_bruteForceLinearScan(Disk *disk)
     cout << "Number of data blocks accessed by brute force method = " << noOfBlksAcc << endl;
     // Print the running time of the brute force method
     cout << "Running time for accessed by brute force method = " << bruteTimeTaken.count() << "s" << endl;
+    cout << "End of Task 3" << endl;
 }
 
 int main()
