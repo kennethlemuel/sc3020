@@ -7,11 +7,26 @@
 
 #include "disk/storage.h"
 #include "bptree/bp_tree.h"
+#include "date.h"
 
 using namespace std;
 
 namespace utils
 {
+    int convertDatetoDays(string date)
+    {
+
+        char separator;
+        int day, month, year;
+
+        istringstream dateStream(date);
+
+        dateStream >> day >> separator >> month >> separator >> year;
+
+        date::year_month_day ymd{date::year(year), date::month(month), date::day(day)};
+        return date::sys_days{ymd}.time_since_epoch().count();
+    }
+
     int readRecords(string fileName, Disk *disk, BPTree *bp_tree)
     {
         string line;
@@ -48,15 +63,15 @@ namespace utils
                 continue;
 
             Record record = {
-                GAME_DATE_EST,
+                convertDatetoDays(GAME_DATE_EST),
                 stoi(TEAM_ID_home),
-                stoi(PTS_home),
+                static_cast<char>(stoi(PTS_home)),
                 stof(FG_PCT_home),
                 stof(FT_PCT_home),
                 stof(FG3_PCT_home),
-                stoi(AST_home),
-                stoi(REB_home),
-                stoi(HOME_TEAM_WINS)};
+                static_cast<char>(stoi(AST_home)),
+                static_cast<char>(stoi(REB_home)),
+                HOME_TEAM_WINS == "1" ? true : false};
             Record *recordPtr = (*disk).storeRecord(record);
             bp_tree->insertNode(record.FG3_PCT_home, recordPtr);
             numRecords++;
