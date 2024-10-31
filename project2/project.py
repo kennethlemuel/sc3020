@@ -201,6 +201,9 @@ def execute_aqp_query():
 window = tk.Tk()
 window.title("SQL Query Executor")
 
+# Set the window to maximize on startup
+window.state("zoomed") 
+
 # Set the window size to cover the entire screen
 window.geometry(f"{int(4.5/5*window.winfo_screenwidth())}x{window.winfo_screenheight()}")
 
@@ -208,20 +211,21 @@ window.geometry(f"{int(4.5/5*window.winfo_screenwidth())}x{window.winfo_screenhe
 top_canvas = tk.Canvas(window)
 top_canvas.pack(side=tk.TOP, padx=10, pady=10)
 
-# Create a title label with a big font in the top canvas
-title_label = tk.Label(top_canvas, text="Enter SQL Query", font=("Helvetica", 15))
-title_label.pack()
 
-# Create an entry field for the SQL query in the top canvas
-sql_entry = tk.Entry(top_canvas, width=50, font=("Helvetica", 10))
-sql_entry.pack(pady=10)
+title_label = tk.Label(top_canvas, text="Enter SQL Query", font=("Helvetica", 18, "bold"))
+title_label.pack(pady=(10, 5)) 
 
-# Create a button to execute the SQL query in the top canvas
-execute_button = tk.Button(top_canvas, text="Execute Query", command=execute_sql_query, font=("Helvetica", 12))
-execute_button.pack(pady=10)
 
-execute_aqp_button = tk.Button(top_canvas, text="Execute AQP Query", command=execute_aqp_query, font=("Helvetica", 12))
-execute_aqp_button.pack(pady=10)
+sql_entry = tk.Entry(top_canvas, width=70, font=("Helvetica", 12))
+sql_entry.pack(pady=(5, 10))
+
+
+execute_button = tk.Button(top_canvas, text="Execute Query", command=execute_sql_query, font=("Helvetica", 12, "bold"))
+execute_button.pack(pady=(5, 5))
+
+execute_aqp_button = tk.Button(top_canvas, text="Execute AQP Query", command=execute_aqp_query, font=("Helvetica", 12, "bold"))
+execute_aqp_button.pack(pady=(0, 10))
+
 
 # Create scrollable left and right canvases
 left_canvas, left_frame = create_scrollable_canvas(window, side=tk.LEFT, min_width=400)
@@ -246,6 +250,15 @@ qep_label.place()
 # Create a label to display the result in the left canvas
 result_label = tk.Label(left_frame, text="", font=("Helvetica", 12))
 result_label.place()
+
+# Create a frame for displaying status messages at the bottom
+status_frame = tk.Frame(window, height=30, bg="lightgrey")
+status_frame.pack(side="bottom", fill="x")
+
+# Add a label inside the status frame to display messages
+status_label = tk.Label(status_frame, text="Status: Ready", anchor="w", font=("Helvetica", 10))
+status_label.pack(fill="x", padx=10)
+
 
 # Start the mainloop
 window.mainloop()
