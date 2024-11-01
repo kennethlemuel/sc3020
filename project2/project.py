@@ -206,7 +206,7 @@ top_canvas = tk.Canvas(window)
 top_canvas.pack(side=tk.TOP, padx=10, pady=10)
 
 # Create frames for different sections
-query_panel = tk.Frame(window, height=30, bg="lightgrey")  # Query entry panel
+query_panel = tk.Frame(window, height=80, bg="lightgrey")  # Query entry panel
 query_panel.pack(side="top", fill="x", padx=10, pady=10)
 
 qep_panel = tk.Frame(window, height=300, bg="white")  # QEP visualization panel
