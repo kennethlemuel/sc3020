@@ -206,16 +206,16 @@ top_canvas = tk.Canvas(window)
 top_canvas.pack(side=tk.TOP, padx=10, pady=10)
 
 # Create frames for different sections
-query_panel = tk.Frame(window, height=100, bg="lightgrey")  # Query entry panel
+query_panel = tk.Frame(window, height=30, bg="lightgrey")  # Query entry panel
 query_panel.pack(side="top", fill="x", padx=10, pady=10)
 
 qep_panel = tk.Frame(window, height=300, bg="white")  # QEP visualization panel
-qep_panel.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+qep_panel.pack(side="left", fill="both", expand=True, padx=2, pady=2)
 
 aqp_panel = tk.Frame(window, height=300, bg="white")  # AQP visualization panel
-aqp_panel.pack(side="right", fill="both", expand=True, padx=5, pady=5)
+aqp_panel.pack(side="right", fill="both", expand=True, padx=2, pady=2)
 
-cost_panel = tk.Frame(window, height=50, bg="lightgrey")  # Cost comparison panel
+cost_panel = tk.Frame(window, height=40, bg="lightgrey")  # Cost comparison panel
 cost_panel.pack(side="bottom", fill="x", padx=10, pady=10)
 
 # Add labels to each panel for clarity
