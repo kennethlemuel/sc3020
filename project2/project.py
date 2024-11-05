@@ -212,8 +212,8 @@ query_panel.pack(side="top", fill="x", padx=10, pady=10)
 qep_panel = tk.Frame(window, height=300, bg="white")  # QEP visualization panel
 qep_panel.pack(side="left", fill="both", expand=True, padx=2, pady=2)
 
-aqp_panel = tk.Frame(window, height=300, bg="white")  # AQP visualization panel
-aqp_panel.pack(side="right", fill="both", expand=True, padx=2, pady=2)
+#aqp_panel = tk.Frame(window, height=300, bg="white")  # AQP visualization panel
+#aqp_panel.pack(side="right", fill="both", expand=True, padx=2, pady=2)
 
 cost_panel = tk.Frame(window, height=40, bg="lightgrey")  # Cost comparison panel
 cost_panel.pack(side="bottom", fill="x", padx=10, pady=10)
@@ -221,6 +221,7 @@ cost_panel.pack(side="bottom", fill="x", padx=10, pady=10)
 # Add labels to each panel for clarity
 tk.Label(query_panel, text="Query Panel", font=("Helvetica", 12, "bold"), bg="lightgrey").pack(side="top")
 tk.Label(qep_panel, text="QEP Panel", font=("Helvetica", 12, "bold")).pack(side="top")
+
 # Dropdown for operator selection
 operator_var = tk.StringVar(qep_panel)
 operator_var.set("Select Operator")  # default value
@@ -233,7 +234,7 @@ apply_operator_button = tk.Button(qep_panel, text="Apply Operator Change", font=
                                   command=lambda: modify_operator(operator_var.get()))
 apply_operator_button.pack(pady=5)
 
-tk.Label(aqp_panel, text="AQP Panel", font=("Helvetica", 12, "bold")).pack(side="top")
+#tk.Label(aqp_panel, text="AQP Panel", font=("Helvetica", 12, "bold")).pack(side="top")
 tk.Label(cost_panel, text="Cost Comparison", font=("Helvetica", 12, "bold"), bg="lightgrey").pack(side="top")
 # Sample cost comparison values for QEP and AQP
 qep_cost = 500  # Placeholder value; replace with actual QEP cost retrieval
@@ -264,8 +265,8 @@ execute_aqp_button.pack(pady=(0, 10))
 
 
 # Create scrollable left and right canvases
-left_canvas, left_frame = create_scrollable_canvas(window, side=tk.LEFT, min_width=400)
-right_canvas, right_frame = create_scrollable_canvas(window, side=tk.RIGHT, min_width=400)
+left_canvas, left_frame = create_scrollable_canvas(window, side=tk.LEFT, min_width=300)
+right_canvas, right_frame = create_scrollable_canvas(window, side=tk.RIGHT, min_width=300)
 
 # Create a label to display the QEP analysis output in the right canvas
 analysis_output_label = tk.Label(right_frame, text="", font=("Helvetica", 12), justify=tk.LEFT, wraplength=550)
@@ -286,6 +287,19 @@ qep_label.place()
 # Create a label to display the result in the left canvas
 result_label = tk.Label(left_frame, text="", font=("Helvetica", 12))
 result_label.place()
+
+
+
+qep_label = tk.Label(right_frame, text="Display AQP", font=("Helvetica", 10))
+qep_label.pack()
+
+# Placeholder for QEP display
+qep_display = tk.Text(right_frame, wrap=tk.WORD, font=("Helvetica", 12), state=tk.DISABLED)
+qep_display.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+#qep_scrollbar = tk.Scrollbar(right_frame, command=qep_display.yview)
+#qep_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+#qep_display.config(yscrollcommand=qep_scrollbar.set)
 
 # Create a frame for displaying status messages at the bottom
 status_frame = tk.Frame(window, height=30, bg="lightgrey")
