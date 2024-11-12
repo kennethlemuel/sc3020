@@ -2,8 +2,8 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from interface import create_scrollable_canvas, create_legend, resize_image,\
     open_fullsize_image, view_statement_details
-from preprocessing import connect_to_db, get_block_size, get_buffer_size, get_qep_image, \
-                 close_db_connection, get_qep_statements, get_aqp
+from preprocessing import connect_db, get_block_size, get_buffer_size, get_qep, \
+                 disconnect_db, get_qep_statements, get_aqp
 from threading import Thread
 import tkinter.font as tkFont
 
@@ -23,10 +23,10 @@ def execute_sql_query():
     def execute_query_thread():
         global click_instruction_label, create_legend_flag
         try:
-            connect_to_db()
+            connect_db()
 
             # Fetch the QEP image
-            qep_digraph = get_qep_image(query)
+            qep_digraph = get_qep(query)
 
             # Check if QEP is None, indicating an invalid query
             if qep_digraph is None:
@@ -38,7 +38,7 @@ def execute_sql_query():
             buffer_size = get_buffer_size()
             blk_size = get_block_size()
 
-            close_db_connection()
+            disconnect_db()
 
             # Save the QEP digraph as a PNG file
             qep_digraph.format = 'png'
@@ -105,7 +105,7 @@ def execute_aqp_query():
     def execute_query_thread():
         global click_instruction_label, create_legend_flag
         try:
-            connect_to_db()
+            connect_db()
             
             # Fetch the QEP image
             qep_digraph = get_aqp(query, False, True, True, True, True)
@@ -123,7 +123,7 @@ def execute_aqp_query():
             
             print("success2")
             
-            close_db_connection()
+            disconnect_db()
 
             print("success3")
 

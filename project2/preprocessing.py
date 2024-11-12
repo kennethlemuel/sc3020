@@ -2,17 +2,19 @@ import psycopg2
 import graphviz
 from graphviz import Digraph
 
-def connect_to_db():    
+def connect_db():    
     try:
-        # Define the connection parameters
+        global connection
+        global cursor
+
+        # Defining parameters
         dbname = "TPC-H"
         user = "postgres"
-        password = "zh020200"
+        password = "zh020200" # Please fill in your password here!
         host = "127.0.0.1"
-        port = "5432"  # Default PostgreSQL port is 5432
+        port = "5432"  # Please fill in your port number here! (Default port number = 5432)
 
         # Create a connection to the database
-        global connection
         connection = psycopg2.connect(
             dbname=dbname,
             user=user,
@@ -25,16 +27,14 @@ def connect_to_db():
         global cursor
         cursor = connection.cursor()
 
-        # Now, you have a working database connection and a cursor for executing SQL queries.
-
     except psycopg2.Error as e:
-        print(f"Error connecting to the database: {e}")
+        print(f"Connection Error occurred: {e}")
 
-def close_db_connection():
+def disconnect_db():
     cursor.close()
     connection.close()
 
-def get_qep_image(query):
+def get_qep(query):
     try:
         explain_query = f"EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) {query}"
         cursor.execute(explain_query)
