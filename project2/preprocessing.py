@@ -10,9 +10,9 @@ def connect_db():
         # Defining parameters
         dbname = "TPC-H"
         user = "postgres"
-        password = "klnva0204"
+        password = "klnva0204" # Please fill in your password here!
         host = "localhost"
-        port = "5432"  # Default PostgreSQL port is 5432
+        port = "5432"  # Please fill in your port number here! (Default port number = 5432)
 
         # Create a connection to the database
         connection = psycopg2.connect(
@@ -47,9 +47,9 @@ def get_qep(query):
             dot = Digraph(comment="Query Execution Plan")
             dot.graph_attr['bgcolor'] = 'lightyellow'
             add_nodes(dot, qep_json["Plan"])
-            return dot, qep_json
+            return dot
         else:
-            return None, None
+            return None
         
     except Exception as e:
         # Handle exceptions, and return an informative message
@@ -87,9 +87,9 @@ def get_aqp(query, hashjoin_enabled, mergejoin_enabled, nestloop_enabled, seqsca
             dot = Digraph(comment="Query Execution Plan")
             dot.graph_attr['bgcolor'] = 'lightyellow'
             add_nodes(dot, qep_json["Plan"])
-            return dot, qep_json
+            return dot
         else:
-            return None, None
+            return None
         
     except Exception as e:
         # Handle exceptions, and return an informative message
@@ -101,7 +101,7 @@ def get_qep_statements():
         _, statements, details = analyze_qep(qep_json["Plan"])
         return statements, details
     else:
-        return None, None
+        return None
 
 
 def get_buffer_size():

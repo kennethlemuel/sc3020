@@ -1,0 +1,35 @@
+// Query Execution Plan
+digraph {
+	graph [bgcolor=lightyellow]
+	node0 [label="Hash Join
+Relation Name: N/A
+Index Name: N/A
+Startup Cost: 10353.0
+Total Cost: 90802.61
+Shared Hit Blocks: 5672
+Shared Read Blocks: 17992"]
+	node1 [label="Seq Scan
+Relation Name: orders
+Index Name: N/A
+Startup Cost: 0.0
+Total Cost: 35056.0
+Shared Hit Blocks: 2064
+Shared Read Blocks: 17992"]
+	node1 -> node0
+	node2 [label="Hash
+Relation Name: N/A
+Index Name: N/A
+Startup Cost: 5108.0
+Total Cost: 5108.0
+Shared Hit Blocks: 3608
+Shared Read Blocks: 0"]
+	node2 -> node0
+	node3 [label="Seq Scan
+Relation Name: customer
+Index Name: N/A
+Startup Cost: 0.0
+Total Cost: 5108.0
+Shared Hit Blocks: 3608
+Shared Read Blocks: 0"]
+	node3 -> node2
+}
