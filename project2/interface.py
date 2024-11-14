@@ -96,6 +96,7 @@ def open_fullsize_image():
     fullsize_image = Image.open("qep_tree.png")
     photo_image = ImageTk.PhotoImage(fullsize_image)
 
+
     # Get screen width and height
     screen_width = new_window.winfo_screenwidth()
     screen_height = new_window.winfo_screenheight()

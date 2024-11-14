@@ -25,23 +25,23 @@ def parse_qep_steps(plan, steps=None):
     return steps
 
 def create_operator_buttons(qep_steps):
-    # Clear any existing operator buttons in the right_frame
-    for widget in right_frame.winfo_children():
+    # Clear any existing operator buttons in the controls_frame
+    for widget in controls_frame.winfo_children():
         if isinstance(widget, (tk.OptionMenu, tk.Label)):
             widget.destroy()
 
     # Loop through each step in the QEP and create a dropdown for it
     for i, step in enumerate(qep_steps):
         relation_name = step.get("Relation Name", "Unknown")
-        step_label = tk.Label(right_frame, text=f"Step {i + 1}: {step['Node Type']} on {relation_name}")
+        step_label = tk.Label(controls_frame, text=f"Step {i + 1}: {step['Node Type']} on {relation_name}")
         step_label.pack(side="top", anchor="w", padx=10)
 
         # For scan operations, create a dropdown for selecting scan type
         if step["Node Type"] in ["Seq Scan", "Index Scan"]:
-            scan_var = tk.StringVar(right_frame)
+            scan_var = tk.StringVar(controls_frame)
             scan_var.set("Select Scan Type")
             scan_dropdown = tk.OptionMenu(
-                right_frame, scan_var, "Seq Scan", "Index Scan",
+                controls_frame, scan_var, "Seq Scan", "Index Scan",
                 command=lambda op, step=i: update_operator_selection(step, op)
             )
             scan_dropdown.pack(side="top", padx=10, pady=5)
@@ -49,10 +49,10 @@ def create_operator_buttons(qep_steps):
         # For join operations, create dropdowns for Join Type and Join Order
         elif step["Node Type"] in ["Hash Join", "Merge Join", "Nested Loop"]:
             # Join Type Dropdown
-            join_type_var = tk.StringVar(right_frame)
+            join_type_var = tk.StringVar(controls_frame)
             join_type_var.set("Select Join Type")
             join_type_dropdown = tk.OptionMenu(
-                right_frame, join_type_var, "Hash Join", "Index Join", "Nested Loop Join",
+                controls_frame, join_type_var, "Hash Join", "Index Join", "Nested Loop Join",
                 command=lambda op, step=i: update_operator_selection(step, op)
             )
             join_type_dropdown.pack(side="top", padx=10, pady=5)
@@ -63,10 +63,10 @@ def create_operator_buttons(qep_steps):
                 right_relation = step["Plans"][1].get("Relation Name", "Unknown")
 
                 # Join Order Dropdown
-                join_order_var = tk.StringVar(right_frame)
+                join_order_var = tk.StringVar(controls_frame)
                 join_order_var.set("Select Join Order")
                 join_order_dropdown = tk.OptionMenu(
-                    right_frame, join_order_var,
+                    controls_frame, join_order_var,
                     f"{left_relation} join {right_relation}",
                     f"{right_relation} join {left_relation}",
                     command=lambda order, step=i: update_operator_selection(f"{step}_order", order)
@@ -88,69 +88,32 @@ def execute_sql_query():
     status_label.config(text="Executing SQL Query...", fg="blue")
 
     def execute_query_thread():
-        global click_instruction_label, create_legend_flag, qep_json
+        global click_instruction_label, create_legend_flag
         try:
             connect_db()
-            qep_digraph = get_qep(query)
-            if qep_digraph is None:
+            # Fetch the QEP digraph and JSON structure
+            qep_digraph, qep_json_structure = get_qep(query)
+
+            if qep_digraph is None or qep_json_structure is None:
                 result_label.config(text="Error: Invalid query. Please check your SQL syntax.")
                 status_label.config(text="Error: Invalid SQL syntax.", fg="red")
                 return
 
-            # Extract QEP steps by parsing the JSON structure
-            qep_steps = parse_qep_steps(qep_digraph['Plan'])  # Assuming the QEP JSON has a root 'Plan' node
-            buffer_size = get_buffer_size()
-            blk_size = get_block_size()
-            disconnect_db()
-
-            # Create operator selection buttons for each step in the QEP
+            # Extract QEP steps and display buttons in controls_frame
+            qep_steps = parse_qep_steps(qep_json_structure["Plan"])
             create_operator_buttons(qep_steps)
-             # Display success status
-            status_label.config(text="Query executed successfully!", fg="green")
-            # Save the QEP digraph as a PNG file
-            qep_digraph.format = 'png'
+
+            # Save and display QEP image
+            qep_image_path = "qep_tree.png"
             try:
-                qep_digraph.render(filename="qep_tree")
+                image = Image.open(qep_image_path).convert("RGB")
+                resized_image = image.resize((600, 600), Image.LANCZOS)
+                qep_image = ImageTk.PhotoImage(resized_image)
+                qep_display.config(image=qep_image)
+                qep_display.image = qep_image
+                qep_display.pack(fill="both", expand=True)
             except Exception as e:
-                print(e)
-
-            # Open the QEP image and convert it to Tkinter PhotoImage
-            qep_image = ImageTk.PhotoImage(resize_image("qep_tree.png", (600, 600)))
-            qep_display.config(image=qep_image)
-            qep_display.image = qep_image
-            qep_display.pack(fill="both", expand=True)
-            qep_display.bind("<Button-1>", lambda e: open_fullsize_image())
-
-            # Display query execution result in the result label
-            result_label.config(text="Query executed successfully!")
-
-            qep_label.config(image=qep_image)
-            qep_label.image = qep_image
-            qep_label.pack(side="top", fill="both", expand=True)
-
-            # Define a bold font
-            bold_font = tkFont.Font(family="Verdana", size=10, weight="bold")
-
-            # Check if the label already exists, if not create it
-            if click_instruction_label is None:
-                click_instruction_label = tk.Label(qep_label.master, text="Click on the image to view it in full size", font=bold_font)
-                click_instruction_label.pack(side="top")
-            else:
-                click_instruction_label.config(text="Click on the image to view it in full size", font=bold_font)
-
-            # Update the statements in the right frame
-            analysis_output_label.config(text='\n'.join(statements), font=("Verdana", 10))
-            analysis_output_label.pack(side="top", fill="both", expand=True)
-            for widget in right_frame.winfo_children():
-                if isinstance(widget, tk.Button):
-                    widget.destroy()
-            for i, detail in enumerate(details):
-                button = tk.Button(aqp_display_frame, text=f"Step {i+1} Details", command=lambda s=detail: view_statement_details(window, s))
-                button.pack()
-
-            if not create_legend_flag:
-                create_legend(qep_panel, legend_items, create_legend_flag, legend_canvas)
-                create_legend_flag = True
+                print(f"Error loading image into Tkinter: {e}")
 
             status_label.config(text="Query executed successfully!", fg="green")
         except Exception as e:
@@ -160,6 +123,8 @@ def execute_sql_query():
     query = sql_entry.get()
     query_thread = Thread(target=execute_query_thread)
     query_thread.start()
+
+
 
 def generate_aqp_with_selections():
     query = sql_entry.get()
@@ -321,6 +286,12 @@ left_canvas, left_frame = create_scrollable_canvas(window, side=tk.LEFT, min_wid
 right_canvas, right_frame = create_scrollable_canvas(window, side=tk.RIGHT, min_width=300)
 right_frame.pack(fill="both", expand=True)
 
+# Create separate frames within left_frame and right_frame
+image_frame = tk.Frame(left_frame, bg="#ffffff")
+image_frame.pack(side="top", fill="both", expand=True)
+
+controls_frame = tk.Frame(right_frame, bg="#ffffff")
+controls_frame.pack(side="top", fill="both", expand=True)
 
 # Create a label to display the QEP analysis output in the right canvas
 analysis_output_label = tk.Label(right_frame, text="", font=("Verdana", 12), justify=tk.LEFT, wraplength=550)
@@ -347,8 +318,8 @@ qep_label = tk.Label(right_frame, text="Display AQP", font=("Verdana", 12, "bold
 #qep_label.pack()
 
 # Placeholder for QEP display
-qep_display = tk.Text(right_frame, wrap=tk.WORD, font=("Verdana", 12), state=tk.DISABLED)
-qep_display.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+qep_display = tk.Label(image_frame, font=("Verdana", 12))
+qep_display.pack(fill="both", expand=True)
 
 #qep_scrollbar = tk.Scrollbar(right_frame, command=qep_display.yview)
 #qep_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)

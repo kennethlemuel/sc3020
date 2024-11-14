@@ -1,6 +1,7 @@
 import psycopg2
 import graphviz
 from graphviz import Digraph
+import os
 
 def connect_db():    
     try:
@@ -38,22 +39,30 @@ def get_qep(query):
     try:
         explain_query = f"EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) {query}"
         cursor.execute(explain_query)
-        global qep_json
+        
+        # Store the QEP JSON data directly
         qep_json = cursor.fetchone()[0][0]
-        analyze_qep(qep_json['Plan'])
-
-        # Check if the QEP image is available in the JSON
+        
+        # Create the Digraph
         if "Plan" in qep_json:
             dot = Digraph(comment="Query Execution Plan")
             dot.graph_attr['bgcolor'] = 'lightyellow'
             add_nodes(dot, qep_json["Plan"])
-            return dot
+
+            # Define the file path for the QEP image
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            image_path = os.path.join(base_dir, "qep_tree")
+            dot.format = 'png'
+            
+            # Render and save the image
+            dot.render(filename=image_path, cleanup=True)  # ".png" will be automatically added by Graphviz
+            return image_path + ".png", qep_json  # Return the image path and JSON structure
         else:
-            return None
+            return None, None  # Return None for both if "Plan" is not in JSON
         
     except Exception as e:
-        # Handle exceptions, and return an informative message
-        return [f"Error analyzing the query: {str(e)}"]
+        # Handle exceptions and return an informative message
+        return None, f"Error analyzing the query: {str(e)}"
     
 # Function to execute the SQL query
 def get_aqp(query, hashjoin_enabled, mergejoin_enabled, nestloop_enabled, seqscan_enabled, indexscan_enabled):
