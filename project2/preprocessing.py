@@ -46,9 +46,9 @@ def get_qep(query):
             dot = Digraph(comment="Query Execution Plan")
             dot.graph_attr['bgcolor'] = 'lightyellow'
             add_nodes(dot, qep_json["Plan"])
-            return dot
+            return dot, qep_json
         else:
-            return None
+            return None, None
         
     except Exception as e:
         # Handle exceptions, and return an informative message
@@ -86,9 +86,9 @@ def get_aqp(query, hashjoin_enabled, mergejoin_enabled, nestloop_enabled, seqsca
             dot = Digraph(comment="Query Execution Plan")
             dot.graph_attr['bgcolor'] = 'lightyellow'
             add_nodes(dot, qep_json["Plan"])
-            return dot
+            return dot, qep_json
         else:
-            return None
+            return None, None
         
     except Exception as e:
         # Handle exceptions, and return an informative message
@@ -100,7 +100,7 @@ def get_qep_statements():
         _, statements, details = analyze_qep(qep_json["Plan"])
         return statements, details
     else:
-        return None
+        return None, None
 
 
 def get_buffer_size():

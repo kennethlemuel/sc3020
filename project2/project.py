@@ -1,9 +1,7 @@
 import tkinter as tk
 from PIL import Image, ImageTk
-from interface import create_scrollable_canvas, create_legend, resize_image,\
-    open_fullsize_image, view_statement_details
-from preprocessing import connect_db, get_block_size, get_buffer_size, get_qep, \
-                 disconnect_db, get_qep_statements, get_aqp
+from interface import create_scrollable_canvas, create_legend, resize_image, open_fullsize_image, view_statement_details
+from preprocessing import connect_db, get_block_size, get_buffer_size, get_qep, disconnect_db, get_qep_statements, get_aqp
 from threading import Thread
 import tkinter.font as tkFont
 
@@ -75,29 +73,36 @@ def create_operator_buttons(qep_steps):
                 )
                 join_order_dropdown.pack(side="top", padx=10, pady=5)
 
-# Function to execute the SQL query
+# Main Window Configuration
+window = tk.Tk()
+window.title("SQL Query Executor")
+window.state("zoomed")
+window.geometry(f"{int(4.5/5*window.winfo_screenwidth())}x{window.winfo_screenheight()}")
+
+# Define fonts after initializing the Tk window
+bold_font = tkFont.Font(family="Helvetica", size=10, weight="bold")
+
+# Functions
 def execute_sql_query():
     global click_instruction_label, create_legend_flag
-     # Update status to show the query is starting
-    status_label.config(text="Executing SQL Query...", fg="blue")  # Added status update
+    status_label.config(text="Executing SQL Query...", fg="blue")
 
-    # Function to execute the SQL query in a separate thread
     def execute_query_thread():
-        global click_instruction_label, create_legend_flag
+        global click_instruction_label, create_legend_flag, qep_json
         try:
             connect_db()
-
-            # Fetch the QEP image
             qep_digraph = get_qep(query)
-
-            # Check if QEP is None, indicating an invalid query
             if qep_digraph is None:
                 result_label.config(text="Error: Invalid query. Please check your SQL syntax.")
-                status_label.config(text="Error: Invalid SQL syntax.", fg="red")  # Error status update
+                status_label.config(text="Error: Invalid SQL syntax.", fg="red")
                 return
+<<<<<<< Updated upstream
 
             # Extract QEP steps by parsing the JSON structure
             qep_steps = parse_qep_steps(qep_digraph['Plan'])  # Assuming the QEP JSON has a root 'Plan' node
+=======
+            statements, details = get_qep_statements(qep_json) 
+>>>>>>> Stashed changes
             buffer_size = get_buffer_size()
             blk_size = get_block_size()
             disconnect_db()
@@ -114,13 +119,16 @@ def execute_sql_query():
                 print(e)
 
             # Open the QEP image and convert it to Tkinter PhotoImage
-            qep_image = Image.open("qep_tree.png")
-            max_dimensions = (600, 600)  # Maximum dimensions for the image
-            resized_qep_img = resize_image("qep_tree.png", max_dimensions)
+            qep_image = ImageTk.PhotoImage(resize_image("qep_tree.png", (600, 600)))
+            qep_display.config(image=qep_image)
+            qep_display.image = qep_image
+            qep_display.pack(fill="both", expand=True)
+            qep_display.bind("<Button-1>", lambda e: open_fullsize_image())
 
-            qep_image = ImageTk.PhotoImage(resized_qep_img)
-            qep_label.bind("<Button-1>", lambda e: open_fullsize_image())
+            # Display query execution result in the result label
+            result_label.config(text="Query executed successfully!")
 
+<<<<<<< Updated upstream
             qep_label.config(image=qep_image)
             qep_label.image = qep_image
             qep_label.pack(side="top", fill="both", expand=True)
@@ -139,31 +147,32 @@ def execute_sql_query():
             analysis_output_label.config(text='\n'.join(statements), font=("Verdana", 10))
             analysis_output_label.pack(side="top", fill="both", expand=True)
             for widget in right_frame.winfo_children():
+=======
+            # Display analysis output in the analysis_output_label
+            analysis_output_label.config(text='\n'.join(statements), font=("Helvetica", 10))
+            
+            for widget in aqp_display_frame.winfo_children():
+>>>>>>> Stashed changes
                 if isinstance(widget, tk.Button):
                     widget.destroy()
             for i, detail in enumerate(details):
-                button = tk.Button(right_frame, text=f"Step {i+1} Details", command=lambda s=detail: view_statement_details(window, s))
+                button = tk.Button(aqp_display_frame, text=f"Step {i+1} Details", command=lambda s=detail: view_statement_details(window, s))
                 button.pack()
 
-            # Check if the legend has been created already
             if not create_legend_flag:
-                create_legend(left_frame, legend_items, create_legend_flag, legend_canvas)
+                create_legend(qep_panel, legend_items, create_legend_flag, legend_canvas)
                 create_legend_flag = True
 
-            # Successful execution status update
-            status_label.config(text="Query executed successfully!", fg="green")  # Success status update
-
+            status_label.config(text="Query executed successfully!", fg="green")
         except Exception as e:
             result_label.config(text=f"Error: {str(e)}")
-            status_label.config(text=f"Execution failed: {str(e)}", fg="red")  # Exception status update
+            status_label.config(text=f"Execution failed: {str(e)}", fg="red")
 
-    # Get the query from the entry field
     query = sql_entry.get()
-
-    # Create a thread to execute the query
     query_thread = Thread(target=execute_query_thread)
     query_thread.start()
 
+<<<<<<< Updated upstream
 def generate_aqp_with_selections():
     query = sql_entry.get()
 
@@ -182,53 +191,44 @@ def generate_aqp_with_selections():
 
 
 # Function to execute the SQL query
+=======
+# Function to execute AQP Query
+>>>>>>> Stashed changes
 def execute_aqp_query():
     global click_instruction_label, create_legend_flag
-    # Function to execute the SQL query in a separate thread
+
     def execute_query_thread():
         global click_instruction_label, create_legend_flag
         try:
             connect_db()
-            
-            # Fetch the QEP image
             qep_digraph = get_aqp(query, False, True, True, True, True)
-            print(qep_digraph)
-
-            # Check if QEP is None, indicating an invalid query
             if qep_digraph is None:
                 result_label.config(text="Error: Invalid query. Please check your SQL syntax.")
                 return
-            print("success1")
 
             statements, details = get_qep_statements()
             buffer_size = get_buffer_size()
             blk_size = get_block_size()
-            
-            print("success2")
-            
             disconnect_db()
-
-            print("success3")
 
             # Save the QEP digraph as a PNG file
             qep_digraph.format = 'png'
-            print("success3.5")
-            
             try:
                 qep_digraph.render(filename="qep_tree")
             except Exception as e:
                 print(e)
-            
-            print("success4")
 
             # Open the QEP image and convert it to Tkinter PhotoImage
-            qep_image = Image.open("qep_tree.png")
-            
-            print("success5")
+            qep_image = ImageTk.PhotoImage(resize_image("qep_tree.png", (600, 600)))
+            qep_display.config(image=qep_image)
+            qep_display.image = qep_image
+            qep_display.pack(fill="both", expand=True)
+            qep_display.bind("<Button-1>", lambda e: open_fullsize_image())
 
-            max_dimensions = (600, 600)  # Maximum dimensions for the image
-            resized_qep_img = resize_image("qep_tree.png", max_dimensions)
+            # Display query execution result in the result label
+            result_label.config(text="AQP query executed successfully!")
 
+<<<<<<< Updated upstream
             qep_image = ImageTk.PhotoImage(resized_qep_img)
             qep_label.bind("<Button-1>", lambda e: open_fullsize_image())
 
@@ -252,66 +252,80 @@ def execute_aqp_query():
             analysis_output_label.pack(side="top", fill="both", expand=True)
             for widget in right_frame.winfo_children():
                 if (isinstance(widget, tk.Button)):
+=======
+            # Display analysis output in the analysis_output_label
+            analysis_output_label.config(text='\n'.join(statements), font=("Helvetica", 10))
+            
+            for widget in aqp_display_frame.winfo_children():
+                if isinstance(widget, tk.Button):
+>>>>>>> Stashed changes
                     widget.destroy()
             for i, detail in enumerate(details):
-                button = tk.Button(right_frame, text=f"Step {i+1} Details", command=lambda s=detail: view_statement_details(window, s))
+                button = tk.Button(aqp_display_frame, text=f"Step {i+1} Details", command=lambda s=detail: view_statement_details(window, s))
                 button.pack()
-            # Check if the legend has been created already
+
             if not create_legend_flag:
-                # Call create_legend function
-                create_legend(left_frame, legend_items, create_legend_flag, legend_canvas)
-                # Set the flag to True to avoid recreating the legend
+                create_legend(qep_panel, legend_items, create_legend_flag, legend_canvas)
                 create_legend_flag = True
 
+            status_label.config(text="Query executed successfully!", fg="green")
         except Exception as e:
             result_label.config(text=f"Error: {str(e)}")
+            status_label.config(text=f"Execution failed: {str(e)}", fg="red")
 
-    # Get the query from the entry field
     query = sql_entry.get()
-
-    # Create a thread to execute the query
     query_thread = Thread(target=execute_query_thread)
     query_thread.start()
 
-
-# Create the main window
-window = tk.Tk()
-window.title("SQL Query Executor")
-
-# Set the window to maximize on startup
-window.state("zoomed") 
-
-# Set the window size to cover the entire screen
-window.geometry(f"{int(4.5/5*window.winfo_screenwidth())}x{window.winfo_screenheight()}")
-
-# Create a top canvas for title, entry field, and button
+# Top Panel (Query Entry and Buttons)
 top_canvas = tk.Canvas(window)
 top_canvas.pack(side=tk.TOP, padx=10, pady=10)
 
+<<<<<<< Updated upstream
 # Create frames for different sections
 query_panel = tk.Frame(window, height=80, bg="#f0f0f0") # Query entry panel
 query_panel.pack(side="top", fill="x", padx=10, pady=10)
 
 qep_panel = tk.Frame(window, height=300, bg="#ffffff")  # QEP visualization panel
 qep_panel.pack(side="left", fill="both", expand=True, padx=2, pady=2)
+=======
+title_label = tk.Label(top_canvas, text="Enter SQL Query", font=("Segoe UI", 18, "bold"), fg="#4a90e2", bg="#ffffff")
+title_label.pack(pady=(10, 5))
 
-#aqp_panel = tk.Frame(window, height=300, bg="white")  # AQP visualization panel
-#aqp_panel.pack(side="right", fill="both", expand=True, padx=2, pady=2)
+sql_entry = tk.Entry(top_canvas, width=70, font=("Segoe UI", 12), bg="#e8f4fa", fg="#333333")
+sql_entry.pack(pady=(5, 10))
+>>>>>>> Stashed changes
 
+execute_button = tk.Button(top_canvas, text="Execute Query", command=execute_sql_query, font=("Segoe UI", 12, "bold"), bg="#4a90e2", fg="#ffffff")
+execute_button.pack(pady=(5, 5))
+
+<<<<<<< Updated upstream
 cost_panel = tk.Frame(window, height=40, bg="#f0f0f0")  # Cost comparison panel
 cost_panel.pack(side="bottom", fill="x", padx=10, pady=10)
 
 # Add labels to each panel for clarity
 tk.Label(query_panel, text="Query Panel", font=("Verdana", 12, "bold"), bg="lightgrey").pack(side="top")
 tk.Label(qep_panel, text="QEP Panel", font=("Verdana", 12, "bold")).pack(side="top")
+=======
+execute_aqp_button = tk.Button(top_canvas, text="Execute AQP Query", command=execute_aqp_query, font=("Segoe UI", 12, "bold"), bg="#4a90e2", fg="#ffffff")
+execute_aqp_button.pack(pady=(0, 10))
 
-# Dropdown for operator selection
+# Middle Section with QEP Panel, Display QEP, and Display AQP
+middle_section = tk.Frame(window)
+middle_section.pack(fill="both", expand=True, padx=5, pady=5)
+
+# QEP Panel (Left)
+qep_panel = tk.Frame(middle_section, bg="#ffffff")
+qep_panel.pack(side="left", fill="y", padx=5, pady=5)
+tk.Label(qep_panel, text="QEP Panel", font=("Helvetica", 12, "bold")).pack(side="top", pady=(5, 10))
+>>>>>>> Stashed changes
+
 operator_var = tk.StringVar(qep_panel)
 operator_var.set("Select Operator")  # default value
-
 operator_dropdown = tk.OptionMenu(qep_panel, operator_var, "Hash Join", "Merge Join")
 operator_dropdown.pack(pady=5)
 
+<<<<<<< Updated upstream
 # Button to apply changes based on selected operator
 apply_operator_button = tk.Button(qep_panel, text="Apply Operator Change", font=("Verdana", 10),
                                   command=lambda: modify_operator(operator_var.get()))
@@ -394,6 +408,50 @@ status_frame.pack(side="bottom", fill="x")
 status_label = tk.Label(status_frame, text="Status: Ready", anchor="w", font=("Segoe UI", 10), fg="#333333", bg="#f0f0f0")
 status_label.pack(fill="x", padx=10)
 
+=======
+apply_operator_button = tk.Button(qep_panel, text="Apply Operator Change", font=("Helvetica", 10), command=lambda: modify_operator(operator_var.get()))
+apply_operator_button.pack(pady=5)
+
+# Result Label for Query Execution
+result_label = tk.Label(qep_panel, text="", font=("Helvetica", 10, "bold"), fg="blue")
+result_label.pack(pady=10)
+
+# Display QEP (Center)
+qep_display_frame = tk.Frame(middle_section, bg="#ffffff")
+qep_display_frame.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+qep_display_label = tk.Label(qep_display_frame, text="Display QEP", font=("Helvetica", 12, "bold"))
+qep_display_label.pack(side="top", pady=(5, 10))
+qep_display = tk.Label(qep_display_frame, text="", bg="#ffffff")
+qep_display.pack(fill="both", expand=True)
+
+# Display AQP (Right)
+aqp_display_frame = tk.Frame(middle_section, bg="#ffffff")
+aqp_display_frame.pack(side="right", fill="both", expand=True, padx=5, pady=5)
+aqp_display_label = tk.Label(aqp_display_frame, text="Display AQP", font=("Helvetica", 12, "bold"))
+aqp_display_label.pack(side="top", pady=(5, 10))
+aqp_display = tk.Text(aqp_display_frame, wrap=tk.WORD, font=("Helvetica", 12), state=tk.DISABLED)
+aqp_display.pack(fill="both", expand=True)
+
+# Analysis Output Label
+analysis_output_label = tk.Label(aqp_display_frame, text="", font=("Helvetica", 10), wraplength=400)
+analysis_output_label.pack(fill="both", expand=True, pady=10)
+
+# Bottom Section with Cost Comparison and Status
+bottom_section = tk.Frame(window, bg="#f0f0f0")
+bottom_section.pack(side="bottom", fill="x", padx=10, pady=10)
+
+tk.Label(bottom_section, text="Cost Comparison", font=("Helvetica", 12, "bold"), bg="lightgrey").pack(side="left")
+qep_cost = 500
+aqp_cost = 400
+qep_cost_label = tk.Label(bottom_section, text=f"QEP Cost: {qep_cost}", font=("Segoe UI", 10, "bold"), fg="#ff4d4d" if aqp_cost < qep_cost else "#27ae60", bg="#f0f0f0")
+qep_cost_label.pack(side="left", padx=10)
+aqp_cost_label = tk.Label(bottom_section, text=f"AQP Cost: {aqp_cost}", font=("Segoe UI", 10, "bold"), fg="#27ae60" if aqp_cost < qep_cost else "#ff4d4d", bg="#f0f0f0")
+aqp_cost_label.pack(side="left", padx=10)
+
+# Status Bar
+status_label = tk.Label(bottom_section, text="Status: Ready", anchor="w", font=("Segoe UI", 10), fg="#333333", bg="#f0f0f0")
+status_label.pack(side="right", padx=10)
+>>>>>>> Stashed changes
 
 # Start the mainloop
 window.mainloop()
