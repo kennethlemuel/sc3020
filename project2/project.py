@@ -12,6 +12,8 @@ global create_legend_flag, legend_canvas, click_instruction_label
 legend_canvas = None
 create_legend_flag = False
 click_instruction_label = None
+operator_selections = {}
+
 
 # Function to execute the SQL query
 def execute_sql_query():
@@ -60,7 +62,7 @@ def execute_sql_query():
             qep_label.pack(side="top", fill="both", expand=True)
 
             # Define a bold font
-            bold_font = tkFont.Font(family="Helvetica", size=10, weight="bold")
+            bold_font = tkFont.Font(family="Verdana", size=10, weight="bold")
 
             # Check if the label already exists, if not create it
             if click_instruction_label is None:
@@ -70,7 +72,7 @@ def execute_sql_query():
                 click_instruction_label.config(text="Click on the image to view it in full size", font=bold_font)
 
             # Update the statements in the right frame
-            analysis_output_label.config(text='\n'.join(statements), font=("Helvetica", 10))
+            analysis_output_label.config(text='\n'.join(statements), font=("Verdana", 10))
             analysis_output_label.pack(side="top", fill="both", expand=True)
             for widget in right_frame.winfo_children():
                 if isinstance(widget, tk.Button):
@@ -154,7 +156,7 @@ def execute_aqp_query():
             qep_label.pack(side="top", fill="both", expand=True)
 
             # Define a bold font
-            bold_font = tkFont.Font(family="Helvetica", size=10, weight="bold")
+            bold_font = tkFont.Font(family="Verdana", size=10, weight="bold")
 
             # Check if the label already exists, if not create it
             if click_instruction_label is None:
@@ -165,7 +167,7 @@ def execute_aqp_query():
                 click_instruction_label.config(text="Click on the image to view it in full size", font=bold_font)
 
             # Update the statements in the right frame
-            analysis_output_label.config(text='\n'.join(statements), font=("Helvetica", 10))
+            analysis_output_label.config(text='\n'.join(statements), font=("Verdana", 10))
             analysis_output_label.pack(side="top", fill="both", expand=True)
             for widget in right_frame.winfo_children():
                 if (isinstance(widget, tk.Button)):
@@ -206,21 +208,21 @@ top_canvas = tk.Canvas(window)
 top_canvas.pack(side=tk.TOP, padx=10, pady=10)
 
 # Create frames for different sections
-query_panel = tk.Frame(window, height=80, bg="lightgrey")  # Query entry panel
+query_panel = tk.Frame(window, height=80, bg="#f0f0f0") # Query entry panel
 query_panel.pack(side="top", fill="x", padx=10, pady=10)
 
-qep_panel = tk.Frame(window, height=300, bg="white")  # QEP visualization panel
+qep_panel = tk.Frame(window, height=300, bg="#ffffff")  # QEP visualization panel
 qep_panel.pack(side="left", fill="both", expand=True, padx=2, pady=2)
 
 #aqp_panel = tk.Frame(window, height=300, bg="white")  # AQP visualization panel
 #aqp_panel.pack(side="right", fill="both", expand=True, padx=2, pady=2)
 
-cost_panel = tk.Frame(window, height=40, bg="lightgrey")  # Cost comparison panel
+cost_panel = tk.Frame(window, height=40, bg="#f0f0f0")  # Cost comparison panel
 cost_panel.pack(side="bottom", fill="x", padx=10, pady=10)
 
 # Add labels to each panel for clarity
-tk.Label(query_panel, text="Query Panel", font=("Helvetica", 12, "bold"), bg="lightgrey").pack(side="top")
-tk.Label(qep_panel, text="QEP Panel", font=("Helvetica", 12, "bold")).pack(side="top")
+tk.Label(query_panel, text="Query Panel", font=("Verdana", 12, "bold"), bg="lightgrey").pack(side="top")
+tk.Label(qep_panel, text="QEP Panel", font=("Verdana", 12, "bold")).pack(side="top")
 
 # Dropdown for operator selection
 operator_var = tk.StringVar(qep_panel)
@@ -230,46 +232,46 @@ operator_dropdown = tk.OptionMenu(qep_panel, operator_var, "Hash Join", "Merge J
 operator_dropdown.pack(pady=5)
 
 # Button to apply changes based on selected operator
-apply_operator_button = tk.Button(qep_panel, text="Apply Operator Change", font=("Helvetica", 10),
+apply_operator_button = tk.Button(qep_panel, text="Apply Operator Change", font=("Verdana", 10),
                                   command=lambda: modify_operator(operator_var.get()))
 apply_operator_button.pack(pady=5)
 
-#tk.Label(aqp_panel, text="AQP Panel", font=("Helvetica", 12, "bold")).pack(side="top")
-tk.Label(cost_panel, text="Cost Comparison", font=("Helvetica", 12, "bold"), bg="lightgrey").pack(side="top")
+#tk.Label(aqp_panel, text="AQP Panel", font=("Verdana", 12, "bold")).pack(side="top")
+tk.Label(cost_panel, text="Cost Comparison", font=("Verdana", 12, "bold"), bg="lightgrey").pack(side="top")
 # Sample cost comparison values for QEP and AQP
 qep_cost = 500  # Placeholder value; replace with actual QEP cost retrieval
 aqp_cost = 400  # Placeholder value; replace with actual AQP cost retrieval
 
 # Display cost comparison with color coding
-qep_cost_label = tk.Label(cost_panel, text=f"QEP Cost: {qep_cost}", font=("Helvetica", 10, "bold"),
-                          fg="green" if aqp_cost < qep_cost else "red")
+qep_cost_label = tk.Label(cost_panel, text=f"QEP Cost: {qep_cost}", font=("Segoe UI", 10, "bold"), fg="#ff4d4d" if aqp_cost < qep_cost else "#27ae60", bg="#f0f0f0")
 qep_cost_label.pack(side="left", padx=10)
 
-aqp_cost_label = tk.Label(cost_panel, text=f"AQP Cost: {aqp_cost}", font=("Helvetica", 10, "bold"),
-                          fg="green" if aqp_cost < qep_cost else "red")
+aqp_cost_label = tk.Label(cost_panel, text=f"AQP Cost: {aqp_cost}", font=("Segoe UI", 10, "bold"), fg="#27ae60" if aqp_cost < qep_cost else "#ff4d4d", bg="#f0f0f0")
 aqp_cost_label.pack(side="left", padx=10)
 
-title_label = tk.Label(top_canvas, text="Enter SQL Query", font=("Helvetica", 18, "bold"))
+title_label = tk.Label(top_canvas, text="Enter SQL Query", font=("Verdana", 18, "bold"), fg="#4a90e2", bg="#ffffff")
 title_label.pack(pady=(10, 5)) 
 
 
-sql_entry = tk.Entry(top_canvas, width=70, font=("Helvetica", 12))
+sql_entry = tk.Entry(top_canvas, width=70, font=("Verdana", 12), bg="#e8f4fa", fg="#333333")
 sql_entry.pack(pady=(5, 10))
 
 
-execute_button = tk.Button(top_canvas, text="Execute Query", command=execute_sql_query, font=("Helvetica", 12, "bold"))
+execute_button = tk.Button(top_canvas, text="Execute Query", command=execute_sql_query, font=("Segoe UI", 12, "bold"), bg="#4a90e2", fg="#ffffff")
 execute_button.pack(pady=(5, 5))
 
-execute_aqp_button = tk.Button(top_canvas, text="Execute AQP Query", command=execute_aqp_query, font=("Helvetica", 12, "bold"))
+execute_aqp_button = tk.Button(top_canvas, text="Execute AQP Query", command=execute_aqp_query, font=("Segoe UI", 12, "bold"), bg="#4a90e2", fg="#ffffff")
 execute_aqp_button.pack(pady=(0, 10))
 
 
 # Create scrollable left and right canvases
 left_canvas, left_frame = create_scrollable_canvas(window, side=tk.LEFT, min_width=300)
 right_canvas, right_frame = create_scrollable_canvas(window, side=tk.RIGHT, min_width=300)
+right_frame.pack(fill="both", expand=True)
+
 
 # Create a label to display the QEP analysis output in the right canvas
-analysis_output_label = tk.Label(right_frame, text="", font=("Helvetica", 12), justify=tk.LEFT, wraplength=550)
+analysis_output_label = tk.Label(right_frame, text="", font=("Verdana", 12), justify=tk.LEFT, wraplength=550)
 analysis_output_label.place()
 
 # Legend items
@@ -281,20 +283,19 @@ legend_items = [
 ]
 
 # Create a label to display the QEP image in the left canvas
-qep_label = tk.Label(left_frame, font=("Helvetica", 12))
+qep_label = tk.Label(left_frame, font=("Verdana", 12))
 qep_label.place()
 
 # Create a label to display the result in the left canvas
-result_label = tk.Label(left_frame, text="", font=("Helvetica", 12))
+result_label = tk.Label(left_frame, text="", font=("Verdana", 12))
 result_label.place()
 
-
-
-qep_label = tk.Label(right_frame, text="Display AQP", font=("Helvetica", 10))
-qep_label.pack()
+qep_label = tk.Label(right_frame, text="Display AQP", font=("Verdana", 12, "bold")).pack(side="top")
+#qep_label = tk.Label(right_frame, text="Display AQP", font=("Verdana", 10))
+#qep_label.pack()
 
 # Placeholder for QEP display
-qep_display = tk.Text(right_frame, wrap=tk.WORD, font=("Helvetica", 12), state=tk.DISABLED)
+qep_display = tk.Text(right_frame, wrap=tk.WORD, font=("Verdana", 12), state=tk.DISABLED)
 qep_display.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
 #qep_scrollbar = tk.Scrollbar(right_frame, command=qep_display.yview)
@@ -302,11 +303,11 @@ qep_display.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 #qep_display.config(yscrollcommand=qep_scrollbar.set)
 
 # Create a frame for displaying status messages at the bottom
-status_frame = tk.Frame(window, height=30, bg="lightgrey")
+status_frame = tk.Frame(window, height=30, bg="#f0f0f0")
 status_frame.pack(side="bottom", fill="x")
 
 # Add a label inside the status frame to display messages
-status_label = tk.Label(status_frame, text="Status: Ready", anchor="w", font=("Helvetica", 10))
+status_label = tk.Label(status_frame, text="Status: Ready", anchor="w", font=("Segoe UI", 10), fg="#333333", bg="#f0f0f0")
 status_label.pack(fill="x", padx=10)
 
 
