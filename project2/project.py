@@ -14,6 +14,66 @@ create_legend_flag = False
 click_instruction_label = None
 operator_selections = {}
 
+def update_operator_selection(step, selected_operator):
+    operator_selections[step] = selected_operator
+
+def parse_qep_steps(plan, steps=None):
+    if steps is None:
+        steps = []
+    steps.append(plan)  # Append the current step
+    if "Plans" in plan:
+        for subplan in plan["Plans"]:
+            parse_qep_steps(subplan, steps)
+    return steps
+
+def create_operator_buttons(qep_steps):
+    # Clear any existing operator buttons in the right_frame
+    for widget in right_frame.winfo_children():
+        if isinstance(widget, (tk.OptionMenu, tk.Label)):
+            widget.destroy()
+
+    # Loop through each step in the QEP and create a dropdown for it
+    for i, step in enumerate(qep_steps):
+        relation_name = step.get("Relation Name", "Unknown")
+        step_label = tk.Label(right_frame, text=f"Step {i + 1}: {step['Node Type']} on {relation_name}")
+        step_label.pack(side="top", anchor="w", padx=10)
+
+        # For scan operations, create a dropdown for selecting scan type
+        if step["Node Type"] in ["Seq Scan", "Index Scan"]:
+            scan_var = tk.StringVar(right_frame)
+            scan_var.set("Select Scan Type")
+            scan_dropdown = tk.OptionMenu(
+                right_frame, scan_var, "Seq Scan", "Index Scan",
+                command=lambda op, step=i: update_operator_selection(step, op)
+            )
+            scan_dropdown.pack(side="top", padx=10, pady=5)
+
+        # For join operations, create dropdowns for Join Type and Join Order
+        elif step["Node Type"] in ["Hash Join", "Merge Join", "Nested Loop"]:
+            # Join Type Dropdown
+            join_type_var = tk.StringVar(right_frame)
+            join_type_var.set("Select Join Type")
+            join_type_dropdown = tk.OptionMenu(
+                right_frame, join_type_var, "Hash Join", "Index Join", "Nested Loop Join",
+                command=lambda op, step=i: update_operator_selection(step, op)
+            )
+            join_type_dropdown.pack(side="top", padx=10, pady=5)
+
+            # Extract the names of the relations involved in this join operation
+            if "Plans" in step and len(step["Plans"]) >= 2:
+                left_relation = step["Plans"][0].get("Relation Name", "Unknown")
+                right_relation = step["Plans"][1].get("Relation Name", "Unknown")
+
+                # Join Order Dropdown
+                join_order_var = tk.StringVar(right_frame)
+                join_order_var.set("Select Join Order")
+                join_order_dropdown = tk.OptionMenu(
+                    right_frame, join_order_var,
+                    f"{left_relation} join {right_relation}",
+                    f"{right_relation} join {left_relation}",
+                    command=lambda order, step=i: update_operator_selection(f"{step}_order", order)
+                )
+                join_order_dropdown.pack(side="top", padx=10, pady=5)
 
 # Function to execute the SQL query
 def execute_sql_query():
@@ -36,12 +96,16 @@ def execute_sql_query():
                 status_label.config(text="Error: Invalid SQL syntax.", fg="red")  # Error status update
                 return
 
-            statements, details = get_qep_statements()
+            # Extract QEP steps by parsing the JSON structure
+            qep_steps = parse_qep_steps(qep_digraph['Plan'])  # Assuming the QEP JSON has a root 'Plan' node
             buffer_size = get_buffer_size()
             blk_size = get_block_size()
-
             disconnect_db()
 
+            # Create operator selection buttons for each step in the QEP
+            create_operator_buttons(qep_steps)
+             # Display success status
+            status_label.config(text="Query executed successfully!", fg="green")
             # Save the QEP digraph as a PNG file
             qep_digraph.format = 'png'
             try:
@@ -99,7 +163,24 @@ def execute_sql_query():
     # Create a thread to execute the query
     query_thread = Thread(target=execute_query_thread)
     query_thread.start()
-    
+
+def generate_aqp_with_selections():
+    query = sql_entry.get()
+
+    # Call get_aqp with operator selections applied for each join type
+    aqp_digraph = get_aqp(
+        query,
+        hashjoin_enabled=operator_selections.get(0, "Hash Join") == "Hash Join",
+        mergejoin_enabled=operator_selections.get(1, "Merge Join") == "Merge Join",
+        nestloop_enabled=operator_selections.get(2, "Nested Loop") == "Nested Loop",
+        seqscan_enabled=True,   # Default value; add user control if needed
+        indexscan_enabled=True  # Default value; add user control if needed
+    )
+
+    # Render and display the updated AQP in the interface
+    # Assuming similar rendering steps as in execute_sql_query
+
+
 # Function to execute the SQL query
 def execute_aqp_query():
     global click_instruction_label, create_legend_flag
@@ -259,6 +340,9 @@ sql_entry.pack(pady=(5, 10))
 
 execute_button = tk.Button(top_canvas, text="Execute Query", command=execute_sql_query, font=("Segoe UI", 12, "bold"), bg="#4a90e2", fg="#ffffff")
 execute_button.pack(pady=(5, 5))
+
+generate_aqp_button = tk.Button(top_canvas, text="Generate AQP with Selections", command=generate_aqp_with_selections, font=("Segoe UI", 12, "bold"), bg="#4a90e2", fg="#ffffff")
+generate_aqp_button.pack(pady=(0, 10))
 
 execute_aqp_button = tk.Button(top_canvas, text="Execute AQP Query", command=execute_aqp_query, font=("Segoe UI", 12, "bold"), bg="#4a90e2", fg="#ffffff")
 execute_aqp_button.pack(pady=(0, 10))
