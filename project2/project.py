@@ -230,8 +230,6 @@ query_panel.pack(side="top", fill="x", padx=10, pady=10)
 qep_panel = tk.Frame(window, height=300, bg="#ffffff")  # QEP visualization panel
 qep_panel.pack(side="left", fill="both", expand=True, padx=2, pady=2)
 
-execute_button = tk.Button(top_canvas, text="Execute Query", command=execute_sql_query, font=("Segoe UI", 12, "bold"), bg="#4a90e2", fg="#ffffff")
-execute_button.pack(pady=(5, 5))
 
 cost_panel = tk.Frame(window, height=40, bg="#f0f0f0")  # Cost comparison panel
 cost_panel.pack(side="bottom", fill="x", padx=10, pady=10)
@@ -289,7 +287,7 @@ right_frame.pack(fill="both", expand=True)
 # Create separate frames within left_frame and right_frame
 image_frame = tk.Frame(left_frame, bg="#ffffff")
 image_frame.pack(side="top", fill="both", expand=True)
-
+qep_label = tk.Label(right_frame, text="Display AQP", font=("Verdana", 12, "bold")).pack(side="top")
 controls_frame = tk.Frame(right_frame, bg="#ffffff")
 controls_frame.pack(side="top", fill="both", expand=True)
 
@@ -312,10 +310,6 @@ qep_label.place()
 # Create a label to display the result in the left canvas
 result_label = tk.Label(left_frame, text="", font=("Verdana", 12))
 result_label.place()
-
-qep_label = tk.Label(right_frame, text="Display AQP", font=("Verdana", 12, "bold")).pack(side="top")
-#qep_label = tk.Label(right_frame, text="Display AQP", font=("Verdana", 10))
-#qep_label.pack()
 
 # Placeholder for QEP display
 qep_display = tk.Label(image_frame, font=("Verdana", 12))
