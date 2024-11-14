@@ -78,91 +78,49 @@ def create_operator_buttons(qep_steps):
 # Function to execute the SQL query
 def execute_sql_query():
     global click_instruction_label, create_legend_flag
-     # Update status to show the query is starting
-    status_label.config(text="Executing SQL Query...", fg="blue")  # Added status update
+    status_label.config(text="Executing SQL Query...", fg="blue")
 
-    # Function to execute the SQL query in a separate thread
     def execute_query_thread():
         global click_instruction_label, create_legend_flag
         try:
             connect_db()
 
-            # Fetch the QEP image
-            qep_digraph = get_qep(query)
+            # Fetch the QEP in JSON format
+            qep_json = get_qep(query)  # Ensure `get_qep` returns JSON if possible
 
-            # Check if QEP is None, indicating an invalid query
-            if qep_digraph is None:
-                result_label.config(text="Error: Invalid query. Please check your SQL syntax.")
-                status_label.config(text="Error: Invalid SQL syntax.", fg="red")  # Error status update
-                return
+            # Parse the QEP structure if it's JSON/dictionary
+            if isinstance(qep_json, dict):
+                qep_steps = parse_qep_steps(qep_json['Plan'])  # Assuming 'Plan' is the root
 
-            # Extract QEP steps by parsing the JSON structure
-            qep_steps = parse_qep_steps(qep_digraph['Plan'])  # Assuming the QEP JSON has a root 'Plan' node
-            buffer_size = get_buffer_size()
-            blk_size = get_block_size()
+                # Create operator selection buttons
+                create_operator_buttons(qep_steps)
+                status_label.config(text="Query executed successfully!", fg="green")
+
+            else:
+                status_label.config(text="Failed: QEP is not in expected JSON format.", fg="red")
+
             disconnect_db()
 
-            # Create operator selection buttons for each step in the QEP
-            create_operator_buttons(qep_steps)
-             # Display success status
-            status_label.config(text="Query executed successfully!", fg="green")
-            # Save the QEP digraph as a PNG file
-            qep_digraph.format = 'png'
-            try:
-                qep_digraph.render(filename="qep_tree")
-            except Exception as e:
-                print(e)
+            # Render the QEP image if qep_json is valid
+            if isinstance(qep_json, Digraph):
+                qep_json.format = 'png'
+                qep_json.render(filename="qep_tree")
 
-            # Open the QEP image and convert it to Tkinter PhotoImage
-            qep_image = Image.open("qep_tree.png")
-            max_dimensions = (600, 600)  # Maximum dimensions for the image
-            resized_qep_img = resize_image("qep_tree.png", max_dimensions)
-
-            qep_image = ImageTk.PhotoImage(resized_qep_img)
-            qep_label.bind("<Button-1>", lambda e: open_fullsize_image())
-
-            qep_label.config(image=qep_image)
-            qep_label.image = qep_image
-            qep_label.pack(side="top", fill="both", expand=True)
-
-            # Define a bold font
-            bold_font = tkFont.Font(family="Verdana", size=10, weight="bold")
-
-            # Check if the label already exists, if not create it
-            if click_instruction_label is None:
-                click_instruction_label = tk.Label(qep_label.master, text="Click on the image to view it in full size", font=bold_font)
-                click_instruction_label.pack(side="top")
-            else:
-                click_instruction_label.config(text="Click on the image to view it in full size", font=bold_font)
-
-            # Update the statements in the right frame
-            analysis_output_label.config(text='\n'.join(statements), font=("Verdana", 10))
-            analysis_output_label.pack(side="top", fill="both", expand=True)
-            for widget in right_frame.winfo_children():
-                if isinstance(widget, tk.Button):
-                    widget.destroy()
-            for i, detail in enumerate(details):
-                button = tk.Button(right_frame, text=f"Step {i+1} Details", command=lambda s=detail: view_statement_details(window, s))
-                button.pack()
-
-            # Check if the legend has been created already
-            if not create_legend_flag:
-                create_legend(left_frame, legend_items, create_legend_flag, legend_canvas)
-                create_legend_flag = True
-
-            # Successful execution status update
-            status_label.config(text="Query executed successfully!", fg="green")  # Success status update
+                qep_image = Image.open("qep_tree.png")
+                resized_qep_img = resize_image("qep_tree.png", max_dimensions=(600, 600))
+                qep_image = ImageTk.PhotoImage(resized_qep_img)
+                qep_label.config(image=qep_image)
+                qep_label.image = qep_image
+                qep_label.pack(side="top", fill="both", expand=True)
 
         except Exception as e:
             result_label.config(text=f"Error: {str(e)}")
-            status_label.config(text=f"Execution failed: {str(e)}", fg="red")  # Exception status update
+            status_label.config(text=f"Execution failed: {str(e)}", fg="red")
 
-    # Get the query from the entry field
     query = sql_entry.get()
-
-    # Create a thread to execute the query
     query_thread = Thread(target=execute_query_thread)
     query_thread.start()
+
 
 def generate_aqp_with_selections():
     query = sql_entry.get()
