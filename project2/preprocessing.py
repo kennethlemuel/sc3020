@@ -37,8 +37,7 @@ def disconnect_db():
 def get_qep(query):
     try:
         explain_query = f"EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) {query}"
-        cursor.execute(explain_query)
-        global      
+        cursor.execute(explain_query)    
         qep_json = cursor.fetchone()[0][0]
         analyze_qep(qep_json['Plan'])
 
