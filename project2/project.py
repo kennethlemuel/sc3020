@@ -96,13 +96,9 @@ def execute_sql_query():
                 result_label.config(text="Error: Invalid query. Please check your SQL syntax.")
                 status_label.config(text="Error: Invalid SQL syntax.", fg="red")
                 return
-<<<<<<< Updated upstream
 
             # Extract QEP steps by parsing the JSON structure
             qep_steps = parse_qep_steps(qep_digraph['Plan'])  # Assuming the QEP JSON has a root 'Plan' node
-=======
-            statements, details = get_qep_statements(qep_json) 
->>>>>>> Stashed changes
             buffer_size = get_buffer_size()
             blk_size = get_block_size()
             disconnect_db()
@@ -128,7 +124,6 @@ def execute_sql_query():
             # Display query execution result in the result label
             result_label.config(text="Query executed successfully!")
 
-<<<<<<< Updated upstream
             qep_label.config(image=qep_image)
             qep_label.image = qep_image
             qep_label.pack(side="top", fill="both", expand=True)
@@ -147,12 +142,6 @@ def execute_sql_query():
             analysis_output_label.config(text='\n'.join(statements), font=("Verdana", 10))
             analysis_output_label.pack(side="top", fill="both", expand=True)
             for widget in right_frame.winfo_children():
-=======
-            # Display analysis output in the analysis_output_label
-            analysis_output_label.config(text='\n'.join(statements), font=("Helvetica", 10))
-            
-            for widget in aqp_display_frame.winfo_children():
->>>>>>> Stashed changes
                 if isinstance(widget, tk.Button):
                     widget.destroy()
             for i, detail in enumerate(details):
@@ -172,7 +161,6 @@ def execute_sql_query():
     query_thread = Thread(target=execute_query_thread)
     query_thread.start()
 
-<<<<<<< Updated upstream
 def generate_aqp_with_selections():
     query = sql_entry.get()
 
@@ -191,9 +179,6 @@ def generate_aqp_with_selections():
 
 
 # Function to execute the SQL query
-=======
-# Function to execute AQP Query
->>>>>>> Stashed changes
 def execute_aqp_query():
     global click_instruction_label, create_legend_flag
 
@@ -228,7 +213,6 @@ def execute_aqp_query():
             # Display query execution result in the result label
             result_label.config(text="AQP query executed successfully!")
 
-<<<<<<< Updated upstream
             qep_image = ImageTk.PhotoImage(resized_qep_img)
             qep_label.bind("<Button-1>", lambda e: open_fullsize_image())
 
@@ -252,13 +236,6 @@ def execute_aqp_query():
             analysis_output_label.pack(side="top", fill="both", expand=True)
             for widget in right_frame.winfo_children():
                 if (isinstance(widget, tk.Button)):
-=======
-            # Display analysis output in the analysis_output_label
-            analysis_output_label.config(text='\n'.join(statements), font=("Helvetica", 10))
-            
-            for widget in aqp_display_frame.winfo_children():
-                if isinstance(widget, tk.Button):
->>>>>>> Stashed changes
                     widget.destroy()
             for i, detail in enumerate(details):
                 button = tk.Button(aqp_display_frame, text=f"Step {i+1} Details", command=lambda s=detail: view_statement_details(window, s))
@@ -281,51 +258,28 @@ def execute_aqp_query():
 top_canvas = tk.Canvas(window)
 top_canvas.pack(side=tk.TOP, padx=10, pady=10)
 
-<<<<<<< Updated upstream
 # Create frames for different sections
 query_panel = tk.Frame(window, height=80, bg="#f0f0f0") # Query entry panel
 query_panel.pack(side="top", fill="x", padx=10, pady=10)
 
 qep_panel = tk.Frame(window, height=300, bg="#ffffff")  # QEP visualization panel
 qep_panel.pack(side="left", fill="both", expand=True, padx=2, pady=2)
-=======
-title_label = tk.Label(top_canvas, text="Enter SQL Query", font=("Segoe UI", 18, "bold"), fg="#4a90e2", bg="#ffffff")
-title_label.pack(pady=(10, 5))
-
-sql_entry = tk.Entry(top_canvas, width=70, font=("Segoe UI", 12), bg="#e8f4fa", fg="#333333")
-sql_entry.pack(pady=(5, 10))
->>>>>>> Stashed changes
 
 execute_button = tk.Button(top_canvas, text="Execute Query", command=execute_sql_query, font=("Segoe UI", 12, "bold"), bg="#4a90e2", fg="#ffffff")
 execute_button.pack(pady=(5, 5))
 
-<<<<<<< Updated upstream
 cost_panel = tk.Frame(window, height=40, bg="#f0f0f0")  # Cost comparison panel
 cost_panel.pack(side="bottom", fill="x", padx=10, pady=10)
 
 # Add labels to each panel for clarity
 tk.Label(query_panel, text="Query Panel", font=("Verdana", 12, "bold"), bg="lightgrey").pack(side="top")
 tk.Label(qep_panel, text="QEP Panel", font=("Verdana", 12, "bold")).pack(side="top")
-=======
-execute_aqp_button = tk.Button(top_canvas, text="Execute AQP Query", command=execute_aqp_query, font=("Segoe UI", 12, "bold"), bg="#4a90e2", fg="#ffffff")
-execute_aqp_button.pack(pady=(0, 10))
-
-# Middle Section with QEP Panel, Display QEP, and Display AQP
-middle_section = tk.Frame(window)
-middle_section.pack(fill="both", expand=True, padx=5, pady=5)
-
-# QEP Panel (Left)
-qep_panel = tk.Frame(middle_section, bg="#ffffff")
-qep_panel.pack(side="left", fill="y", padx=5, pady=5)
-tk.Label(qep_panel, text="QEP Panel", font=("Helvetica", 12, "bold")).pack(side="top", pady=(5, 10))
->>>>>>> Stashed changes
 
 operator_var = tk.StringVar(qep_panel)
 operator_var.set("Select Operator")  # default value
 operator_dropdown = tk.OptionMenu(qep_panel, operator_var, "Hash Join", "Merge Join")
 operator_dropdown.pack(pady=5)
 
-<<<<<<< Updated upstream
 # Button to apply changes based on selected operator
 apply_operator_button = tk.Button(qep_panel, text="Apply Operator Change", font=("Verdana", 10),
                                   command=lambda: modify_operator(operator_var.get()))
@@ -408,50 +362,6 @@ status_frame.pack(side="bottom", fill="x")
 status_label = tk.Label(status_frame, text="Status: Ready", anchor="w", font=("Segoe UI", 10), fg="#333333", bg="#f0f0f0")
 status_label.pack(fill="x", padx=10)
 
-=======
-apply_operator_button = tk.Button(qep_panel, text="Apply Operator Change", font=("Helvetica", 10), command=lambda: modify_operator(operator_var.get()))
-apply_operator_button.pack(pady=5)
-
-# Result Label for Query Execution
-result_label = tk.Label(qep_panel, text="", font=("Helvetica", 10, "bold"), fg="blue")
-result_label.pack(pady=10)
-
-# Display QEP (Center)
-qep_display_frame = tk.Frame(middle_section, bg="#ffffff")
-qep_display_frame.pack(side="left", fill="both", expand=True, padx=5, pady=5)
-qep_display_label = tk.Label(qep_display_frame, text="Display QEP", font=("Helvetica", 12, "bold"))
-qep_display_label.pack(side="top", pady=(5, 10))
-qep_display = tk.Label(qep_display_frame, text="", bg="#ffffff")
-qep_display.pack(fill="both", expand=True)
-
-# Display AQP (Right)
-aqp_display_frame = tk.Frame(middle_section, bg="#ffffff")
-aqp_display_frame.pack(side="right", fill="both", expand=True, padx=5, pady=5)
-aqp_display_label = tk.Label(aqp_display_frame, text="Display AQP", font=("Helvetica", 12, "bold"))
-aqp_display_label.pack(side="top", pady=(5, 10))
-aqp_display = tk.Text(aqp_display_frame, wrap=tk.WORD, font=("Helvetica", 12), state=tk.DISABLED)
-aqp_display.pack(fill="both", expand=True)
-
-# Analysis Output Label
-analysis_output_label = tk.Label(aqp_display_frame, text="", font=("Helvetica", 10), wraplength=400)
-analysis_output_label.pack(fill="both", expand=True, pady=10)
-
-# Bottom Section with Cost Comparison and Status
-bottom_section = tk.Frame(window, bg="#f0f0f0")
-bottom_section.pack(side="bottom", fill="x", padx=10, pady=10)
-
-tk.Label(bottom_section, text="Cost Comparison", font=("Helvetica", 12, "bold"), bg="lightgrey").pack(side="left")
-qep_cost = 500
-aqp_cost = 400
-qep_cost_label = tk.Label(bottom_section, text=f"QEP Cost: {qep_cost}", font=("Segoe UI", 10, "bold"), fg="#ff4d4d" if aqp_cost < qep_cost else "#27ae60", bg="#f0f0f0")
-qep_cost_label.pack(side="left", padx=10)
-aqp_cost_label = tk.Label(bottom_section, text=f"AQP Cost: {aqp_cost}", font=("Segoe UI", 10, "bold"), fg="#27ae60" if aqp_cost < qep_cost else "#ff4d4d", bg="#f0f0f0")
-aqp_cost_label.pack(side="left", padx=10)
-
-# Status Bar
-status_label = tk.Label(bottom_section, text="Status: Ready", anchor="w", font=("Segoe UI", 10), fg="#333333", bg="#f0f0f0")
-status_label.pack(side="right", padx=10)
->>>>>>> Stashed changes
 
 # Start the mainloop
 window.mainloop()
