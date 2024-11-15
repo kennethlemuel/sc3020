@@ -104,7 +104,7 @@ def execute_sql_query():
             create_operator_buttons(qep_steps)
 
             # Save and display QEP image
-            qep_image_path = "qep_tree.png"
+            qep_image_path = "project2/qep_tree.png"
             try:
                 image = Image.open(qep_image_path).convert("RGB")
                 resized_image = image.resize((600, 600), Image.LANCZOS)
