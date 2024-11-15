@@ -10,10 +10,10 @@ def connect_db():
 
         # Defining parameters
         dbname = "TPC-H"
-        user = "postgres"
-        password = "klnva0204" # Please fill in your password here!
-        host = "localhost"
-        port = "5432"  # Please fill in your port number here! (Default port number = 5432)
+        user = "wewechoo"
+        password = "zh020200"
+        host = "192.168.172.248"
+        port = "5432"  # Default PostgreSQL port is 5432
 
         # Create a connection to the database
         connection = psycopg2.connect(
@@ -39,8 +39,8 @@ def get_qep(query):
     try:
         explain_query = f"EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) {query}"
         cursor.execute(explain_query)
-        
-        # Store the QEP JSON data directly
+        global qep_json, qep_cost
+        qep_cost = 0.0
         qep_json = cursor.fetchone()[0][0]
         
         # Create the Digraph
@@ -56,7 +56,7 @@ def get_qep(query):
             
             # Render and save the image
             dot.render(filename=image_path, cleanup=True)  # ".png" will be automatically added by Graphviz
-            return image_path + ".png", qep_json  # Return the image path and JSON structure
+            return image_path + ".png", qep_json, qep_cost  # Return the image path and JSON structure
         else:
             return None, None  # Return None for both if "Plan" is not in JSON
         
@@ -65,29 +65,16 @@ def get_qep(query):
         return None, f"Error analyzing the query: {str(e)}"
     
 # Function to execute the SQL query
-def get_aqp(query, hashjoin_enabled, mergejoin_enabled, nestloop_enabled, seqscan_enabled, indexscan_enabled):
+def get_aqp(query, hashjoin_enabled):
     try:
         explain_query = f"EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) {query}"
         
         if(hashjoin_enabled == False):
             explain_query = "SET enable_hashjoin TO off; " + explain_query
         
-        if(mergejoin_enabled == False):
-            explain_query = "SET enable_mergejoin TO off; " + explain_query
-        
-        if(nestloop_enabled == False):
-            explain_query = "SET enable_nestloop TO off; " + explain_query
-        
-        if(seqscan_enabled == False):
-            explain_query = "SET enable_seqscan TO off; " + explain_query
-        
-        if(indexscan_enabled == False):
-            explain_query = "SET enable_indexscan TO off; " + explain_query
-            
-        print(explain_query)
-        
         cursor.execute(explain_query)
-        global qep_json
+        global qep_json, qep_cost
+        qep_cost = 0.0
         qep_json = cursor.fetchone()[0][0]
         analyze_qep(qep_json['Plan'])
 
@@ -96,7 +83,7 @@ def get_aqp(query, hashjoin_enabled, mergejoin_enabled, nestloop_enabled, seqsca
             dot = Digraph(comment="Query Execution Plan")
             dot.graph_attr['bgcolor'] = 'lightyellow'
             add_nodes(dot, qep_json["Plan"])
-            return dot
+            return dot, qep_cost
         else:
             return None
         
@@ -131,6 +118,9 @@ def add_nodes(dot, plan, parent_id=None, node_id=0):
         index_name = plan.get('Index Name', 'N/A')
         shared_hit_blocks = plan.get('Shared Hit Blocks', 'N/A')
         shared_read_blocks = plan.get('Shared Read Blocks', 'N/A')
+        global qep_cost
+        qep_cost += total_cost
+        
 
         # Construct the label with relevant information
         label = f"{node_type}\nRelation Name: {relation_name}\nIndex Name: {index_name}\nStartup Cost: {startup_cost}\nTotal Cost: {total_cost}\nShared Hit Blocks: {shared_hit_blocks}\nShared Read Blocks: {shared_read_blocks}"

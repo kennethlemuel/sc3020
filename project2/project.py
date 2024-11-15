@@ -7,10 +7,14 @@ import tkinter.font as tkFont
 
 # Global variables
 global create_legend_flag, legend_canvas, click_instruction_label
+global query_cost, aqp_query_cost
+query_cost = 0
+aqp_query_cost = 0
 legend_canvas = None
 create_legend_flag = False
 click_instruction_label = None
 operator_selections = {}
+
 
 def update_operator_selection(step, selected_operator):
     operator_selections[step] = selected_operator
@@ -44,7 +48,9 @@ def execute_sql_query():
         try:
             connect_db()
             # Fetch the QEP digraph and JSON structure
-            qep_digraph, qep_json_structure = get_qep(query)
+            global query_cost, root
+            qep_digraph, qep_json_structure, query_cost = get_qep(query)
+            qep_cost_label.config(text=f"QEP Cost: {query_cost}")
 
             if qep_digraph is None or qep_json_structure is None:
                 result_label.config(text="Error: Invalid query. Please check your SQL syntax.")
@@ -61,7 +67,48 @@ def execute_sql_query():
                 qep_display.image = qep_image
                 qep_display.pack(fill="both", expand=True)
             except Exception as e:
-                print(f"Error loading image into Tkinter: {e}")
+                print(e)
+
+            # Open the QEP image and convert it to Tkinter PhotoImage
+            qep_image = Image.open("qep_tree.png")
+            max_dimensions = (600, 600)  # Maximum dimensions for the image
+            resized_qep_img = resize_image("qep_tree.png", max_dimensions)
+            qep_image = ImageTk.PhotoImage(resized_qep_img)
+            qep_label.bind("<Button-1>", lambda e: open_fullsize_image())
+
+            qep_label.config(image=qep_image)
+            qep_label.image = qep_image
+            qep_label.pack(side="top", fill="both", expand=True)
+
+            # Define a bold font
+            bold_font = tkFont.Font(family="Verdana", size=10, weight="bold")
+
+            # Check if the label already exists, if not create it
+            if click_instruction_label is None:
+                click_instruction_label = tk.Label(qep_label.master, text="Click on the image to view it in full size", font=bold_font)
+                click_instruction_label.pack(side="top")
+            else:
+                click_instruction_label.config(text="Click on the image to view it in full size", font=bold_font)
+
+            # Update the statements in the right frame
+            analysis_output_label.config(text='\n'.join(statements), font=("Verdana", 10))
+            analysis_output_label.pack(side="top", fill="both", expand=True)
+            for widget in right_frame.winfo_children():
+                if isinstance(widget, tk.Button):
+                    widget.destroy()
+            for i, detail in enumerate(details):
+                button = tk.Button(right_frame, text=f"Step {i+1} Details", command=lambda s=detail: view_statement_details(window, s))
+                button.pack()
+
+            # Check if the legend has been created already
+            if not create_legend_flag:
+                create_legend(left_frame, legend_items, create_legend_flag, legend_canvas)
+                create_legend_flag = True
+
+            # Successful execution status update
+            status_label.config(text="Query executed successfully!", fg="green")  # Success status update
+
+            print(f"Error loading image into Tkinter: {e}")
 
             status_label.config(text="Query executed successfully!", fg="green")
         except Exception as e:
@@ -99,24 +146,36 @@ def execute_aqp_query():
         global click_instruction_label, create_legend_flag
         try:
             connect_db()
+            
+            # Fetch the QEP image
+            qep_digraph, aqp_query_cost = get_aqp(query, False)
+            aqp_cost_label.config(text=f"AQP Cost: {aqp_query_cost}")
+
+            # Check if QEP is None, indicating an invalid query
             qep_digraph = get_aqp(query, False, True, True, True, True)
             if qep_digraph is None:
                 result_label.config(text="Error: Invalid query. Please check your SQL syntax.")
                 return
 
             statements, details = get_qep_statements()
+            
             buffer_size = get_buffer_size()
             blk_size = get_block_size()
             disconnect_db()
 
             # Save the QEP digraph as a PNG file
             qep_digraph.format = 'png'
+            
             try:
                 qep_digraph.render(filename="qep_tree")
             except Exception as e:
                 print(e)
 
             # Open the QEP image and convert it to Tkinter PhotoImage
+            qep_image = Image.open("qep_tree.png")
+
+            max_dimensions = (600, 600)  # Maximum dimensions for the image
+            resized_qep_img = resize_image("qep_tree.png", max_dimensions)
             qep_image = ImageTk.PhotoImage(resize_image("qep_tree.png", (600, 600)))
             qep_display.config(image=qep_image)
             qep_display.image = qep_image
@@ -127,11 +186,11 @@ def execute_aqp_query():
             result_label.config(text="AQP query executed successfully!")
 
             qep_image = ImageTk.PhotoImage(resized_qep_img)
-            qep_label.bind("<Button-1>", lambda e: open_fullsize_image())
+            aqp_label.bind("<Button-1>", lambda e: open_fullsize_image())
 
-            qep_label.config(image=qep_image)
-            qep_label.image = qep_image
-            qep_label.pack(side="top", fill="both", expand=True)
+            aqp_label.config(image=qep_image)
+            aqp_label.image = qep_image
+            aqp_label.pack(side="top", fill="both", expand=True)
 
             # Define a bold font
             bold_font = tkFont.Font(family="Verdana", size=10, weight="bold")
@@ -171,6 +230,18 @@ def execute_aqp_query():
 top_canvas = tk.Canvas(window)
 top_canvas.pack(side=tk.TOP, padx=10, pady=10)
 
+# Create title label
+title_label = tk.Label(top_canvas, text="Enter SQL Query", font=("Verdana", 18, "bold"), fg="#4a90e2", bg="#ffffff")
+title_label.pack(pady=(10, 5))
+
+# Create button to execute SQL query
+execute_button = tk.Button(top_canvas, text="Execute Query", command=execute_sql_query, font=("Segoe UI", 12, "bold"), bg="#4a90e2", fg="#ffffff")
+execute_button.pack(pady=(5, 5))
+
+# Create button to execute AQP query
+execute_aqp_button = tk.Button(top_canvas, text="Execute AQP Query", command=execute_aqp_query, font=("Segoe UI", 12, "bold"), bg="#4a90e2", fg="#ffffff")
+execute_aqp_button.pack(pady=(0, 10))
+
 # Create frames for different sections
 query_panel = tk.Frame(window, height=80, bg="#f0f0f0") # Query entry panel
 query_panel.pack(side="top", fill="x", padx=10, pady=10)
@@ -185,20 +256,13 @@ tk.Label(query_panel, text="Query Panel", font=("Verdana", 12, "bold"), bg="ligh
 
 #tk.Label(aqp_panel, text="AQP Panel", font=("Verdana", 12, "bold")).pack(side="top")
 tk.Label(cost_panel, text="Cost Comparison", font=("Verdana", 12, "bold"), bg="lightgrey").pack(side="top")
-# Sample cost comparison values for QEP and AQP
-qep_cost = 500  # Placeholder value; replace with actual QEP cost retrieval
-aqp_cost = 400  # Placeholder value; replace with actual AQP cost retrieval
 
 # Display cost comparison with color coding
-qep_cost_label = tk.Label(cost_panel, text=f"QEP Cost: {qep_cost}", font=("Segoe UI", 10, "bold"), fg="#ff4d4d" if aqp_cost < qep_cost else "#27ae60", bg="#f0f0f0")
+qep_cost_label = tk.Label(cost_panel, text=f"QEP Cost: {query_cost}", font=("Segoe UI", 10, "bold"), fg="#ff4d4d" if aqp_query_cost < query_cost else "#27ae60", bg="#f0f0f0")
 qep_cost_label.pack(side="left", padx=10)
 
-aqp_cost_label = tk.Label(cost_panel, text=f"AQP Cost: {aqp_cost}", font=("Segoe UI", 10, "bold"), fg="#27ae60" if aqp_cost < qep_cost else "#ff4d4d", bg="#f0f0f0")
+aqp_cost_label = tk.Label(cost_panel, text=f"AQP Cost: {aqp_query_cost}", font=("Segoe UI", 10, "bold"), fg="#27ae60" if aqp_query_cost < query_cost else "#ff4d4d", bg="#f0f0f0")
 aqp_cost_label.pack(side="left", padx=10)
-
-title_label = tk.Label(top_canvas, text="Enter SQL Query", font=("Verdana", 18, "bold"), fg="#4a90e2", bg="#ffffff")
-title_label.pack(pady=(10, 5)) 
-
 
 sql_entry = tk.Entry(top_canvas, width=70, font=("Verdana", 12), bg="#e8f4fa", fg="#333333")
 sql_entry.pack(pady=(5, 10))
@@ -243,6 +307,10 @@ qep_label.place()
 # Create a label to display the result in the left canvas
 result_label = tk.Label(left_frame, text="", font=("Verdana", 12))
 result_label.place()
+
+aqp_label = tk.Label(right_frame, text="Display AQP", font=("Verdana", 12, "bold")).pack(side="top")
+#qep_label = tk.Label(right_frame, text="Display AQP", font=("Verdana", 10))
+#qep_label.pack()
 
 # Placeholder for QEP display
 qep_display = tk.Label(image_frame, font=("Verdana", 12))
