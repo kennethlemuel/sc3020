@@ -12,3 +12,6 @@ __pycache__/
 *.env
 .idea/
 .vscode/
+
+#Ignore image
+project2/qep_tree.png
