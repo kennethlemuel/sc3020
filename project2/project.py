@@ -35,7 +35,7 @@ bold_font = tkFont.Font(family="Helvetica", size=10, weight="bold")
 def show_help():
     help_window = tk.Toplevel(window)
     help_window.title("pg_hint_plan Help")
-    help_window.geometry("500x400")
+    help_window.geometry("400x300")
 
     # Instructions
     help_text = (
@@ -67,11 +67,11 @@ window.rowconfigure(1, weight=1)
 
 # Top Frame for SQL and AQP Sections
 top_frame = tk.Frame(window)
-top_frame.grid(row=0, column=0, columnspan=2, pady=20)
+top_frame.grid(row=0, column=0, columnspan=2, pady=(100,20))
 
 # Load Help Icon
 try:
-    help_icon = Image.open("help_icon.png").resize((20, 20), Image.LANCZOS)
+    help_icon = Image.open("project2\help_icon.png").resize((20, 20), Image.LANCZOS)
     help_icon = ImageTk.PhotoImage(help_icon)
 except Exception as e:
     print("Help icon not found:", e)
@@ -82,7 +82,9 @@ sql_frame = tk.Frame(top_frame)
 sql_frame.grid(row=0, column=0, padx=20)
 
 sql_label = tk.Label(sql_frame, text="Enter SQL Query", font=("Verdana", 14, "bold"))
-sql_label.pack(pady=5)
+#sql_label.pack(pady=5)
+# Center the label vertically and horizontally 
+sql_label.pack(expand=True, fill='both')
 
 sql_entry = tk.Entry(sql_frame, width=60, font=("Verdana", 12), bg="#e8f4fa", fg="#333333")
 sql_entry.pack(pady=(5, 10))
@@ -90,12 +92,17 @@ sql_entry.pack(pady=(5, 10))
 execute_sql_button = tk.Button(sql_frame, text="Execute SQL Query", command=lambda: execute_query("sql"), font=("Segoe UI", 10, "bold"), bg="#4a90e2", fg="#ffffff")
 execute_sql_button.pack(pady=10)
 
+help_sql_button = tk.Button(sql_frame, image=help_icon, command=show_help, borderwidth=0)
+help_sql_button.pack(padx=2)
+
 # AQP Query Section
 aqp_frame = tk.Frame(top_frame)
 aqp_frame.grid(row=0, column=1, padx=20)
 
 aqp_label = tk.Label(aqp_frame, text="Enter AQP Query", font=("Verdana", 14, "bold"))
-aqp_label.pack(pady=5)
+#aqp_label.pack(pady=5)
+# Center the label vertically and horizontally 
+aqp_label.pack(expand=True, fill='both')
 
 aqp_entry = tk.Entry(aqp_frame, width=60, font=("Verdana", 12), bg="#e8f4fa", fg="#333333")
 aqp_entry.pack(pady=(5, 10))
@@ -119,7 +126,7 @@ sql_output_frame = tk.LabelFrame(bottom_frame, text="SQL Query Output", font=("V
 sql_output_frame.grid(row=0, column=0, padx=20, pady=10, sticky="nsew")
 
 qep_display = tk.Label(sql_output_frame, font=("Verdana", 12), bg="#ffffff", width=40, height=20)
-qep_display.pack(side="left", fill="both", expand=True, padx=5)
+qep_display.pack(side="left", fill=tk.BOTH, expand=True, padx=5)
 
 sql_steps_output = tk.Label(sql_output_frame, text="Query steps will appear here.", font=("Verdana", 10), wraplength=300)
 sql_steps_output.pack(side="right", fill="both", expand=True, padx=5)
@@ -129,7 +136,7 @@ aqp_output_frame = tk.LabelFrame(bottom_frame, text="AQP Query Output", font=("V
 aqp_output_frame.grid(row=0, column=1, padx=20, pady=10, sticky="nsew")
 
 aqp_display = tk.Label(aqp_output_frame, font=("Verdana", 12), bg="#ffffff", width=40, height=20)
-aqp_display.pack(side="left", fill="both", expand=True, padx=5)
+aqp_display.pack(side="left", fill=tk.BOTH, expand=True, padx=5)
 
 aqp_steps_output = tk.Label(aqp_output_frame, text="AQP steps will appear here.", font=("Verdana", 10), wraplength=300)
 aqp_steps_output.pack(side="right", fill="both", expand=True, padx=5)
