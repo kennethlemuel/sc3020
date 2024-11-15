@@ -24,54 +24,6 @@ def parse_qep_steps(plan, steps=None):
             parse_qep_steps(subplan, steps)
     return steps
 
-def create_operator_buttons(qep_steps):
-    # Clear any existing operator buttons in the controls_frame
-    for widget in controls_frame.winfo_children():
-        if isinstance(widget, (tk.OptionMenu, tk.Label)):
-            widget.destroy()
-
-    # Loop through each step in the QEP and create a dropdown for it
-    for i, step in enumerate(qep_steps):
-        relation_name = step.get("Relation Name", "Unknown")
-        step_label = tk.Label(controls_frame, text=f"Step {i + 1}: {step['Node Type']} on {relation_name}")
-        step_label.pack(side="top", anchor="w", padx=10)
-
-        # For scan operations, create a dropdown for selecting scan type
-        if step["Node Type"] in ["Seq Scan", "Index Scan"]:
-            scan_var = tk.StringVar(controls_frame)
-            scan_var.set("Select Scan Type")
-            scan_dropdown = tk.OptionMenu(
-                controls_frame, scan_var, "Seq Scan", "Index Scan",
-                command=lambda op, step=i: update_operator_selection(step, op)
-            )
-            scan_dropdown.pack(side="top", padx=10, pady=5)
-
-        # For join operations, create dropdowns for Join Type and Join Order
-        elif step["Node Type"] in ["Hash Join", "Merge Join", "Nested Loop"]:
-            # Join Type Dropdown
-            join_type_var = tk.StringVar(controls_frame)
-            join_type_var.set("Select Join Type")
-            join_type_dropdown = tk.OptionMenu(
-                controls_frame, join_type_var, "Hash Join", "Index Join", "Nested Loop Join",
-                command=lambda op, step=i: update_operator_selection(step, op)
-            )
-            join_type_dropdown.pack(side="top", padx=10, pady=5)
-
-            # Extract the names of the relations involved in this join operation
-            if "Plans" in step and len(step["Plans"]) >= 2:
-                left_relation = step["Plans"][0].get("Relation Name", "Unknown")
-                right_relation = step["Plans"][1].get("Relation Name", "Unknown")
-
-                # Join Order Dropdown
-                join_order_var = tk.StringVar(controls_frame)
-                join_order_var.set("Select Join Order")
-                join_order_dropdown = tk.OptionMenu(
-                    controls_frame, join_order_var,
-                    f"{left_relation} join {right_relation}",
-                    f"{right_relation} join {left_relation}",
-                    command=lambda order, step=i: update_operator_selection(f"{step}_order", order)
-                )
-                join_order_dropdown.pack(side="top", padx=10, pady=5)
 
 # Main Window Configuration
 window = tk.Tk()
@@ -98,10 +50,6 @@ def execute_sql_query():
                 result_label.config(text="Error: Invalid query. Please check your SQL syntax.")
                 status_label.config(text="Error: Invalid SQL syntax.", fg="red")
                 return
-
-            # Extract QEP steps and display buttons in controls_frame
-            qep_steps = parse_qep_steps(qep_json_structure["Plan"])
-            create_operator_buttons(qep_steps)
 
             # Save and display QEP image
             qep_image_path = "project2/qep_tree.png"
@@ -207,7 +155,7 @@ def execute_aqp_query():
                 button.pack()
 
             if not create_legend_flag:
-                create_legend(qep_panel, legend_items, create_legend_flag, legend_canvas)
+                create_legend( legend_items, create_legend_flag, legend_canvas)
                 create_legend_flag = True
 
             status_label.config(text="Query executed successfully!", fg="green")
@@ -227,26 +175,13 @@ top_canvas.pack(side=tk.TOP, padx=10, pady=10)
 query_panel = tk.Frame(window, height=80, bg="#f0f0f0") # Query entry panel
 query_panel.pack(side="top", fill="x", padx=10, pady=10)
 
-qep_panel = tk.Frame(window, height=300, bg="#ffffff")  # QEP visualization panel
-qep_panel.pack(side="left", fill="both", expand=True, padx=2, pady=2)
-
 
 cost_panel = tk.Frame(window, height=40, bg="#f0f0f0")  # Cost comparison panel
 cost_panel.pack(side="bottom", fill="x", padx=10, pady=10)
 
 # Add labels to each panel for clarity
 tk.Label(query_panel, text="Query Panel", font=("Verdana", 12, "bold"), bg="lightgrey").pack(side="top")
-tk.Label(qep_panel, text="QEP Panel", font=("Verdana", 12, "bold")).pack(side="top")
 
-operator_var = tk.StringVar(qep_panel)
-operator_var.set("Select Operator")  # default value
-operator_dropdown = tk.OptionMenu(qep_panel, operator_var, "Hash Join", "Merge Join")
-operator_dropdown.pack(pady=5)
-
-# Button to apply changes based on selected operator
-apply_operator_button = tk.Button(qep_panel, text="Apply Operator Change", font=("Verdana", 10),
-                                  command=lambda: modify_operator(operator_var.get()))
-apply_operator_button.pack(pady=5)
 
 #tk.Label(aqp_panel, text="AQP Panel", font=("Verdana", 12, "bold")).pack(side="top")
 tk.Label(cost_panel, text="Cost Comparison", font=("Verdana", 12, "bold"), bg="lightgrey").pack(side="top")
@@ -272,8 +207,6 @@ sql_entry.pack(pady=(5, 10))
 execute_button = tk.Button(top_canvas, text="Execute Query", command=execute_sql_query, font=("Segoe UI", 12, "bold"), bg="#4a90e2", fg="#ffffff")
 execute_button.pack(pady=(5, 5))
 
-generate_aqp_button = tk.Button(top_canvas, text="Generate AQP with Selections", command=generate_aqp_with_selections, font=("Segoe UI", 12, "bold"), bg="#4a90e2", fg="#ffffff")
-generate_aqp_button.pack(pady=(0, 10))
 
 execute_aqp_button = tk.Button(top_canvas, text="Execute AQP Query", command=execute_aqp_query, font=("Segoe UI", 12, "bold"), bg="#4a90e2", fg="#ffffff")
 execute_aqp_button.pack(pady=(0, 10))
