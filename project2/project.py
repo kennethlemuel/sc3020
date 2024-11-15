@@ -16,7 +16,17 @@ def update_operator_selection(step, selected_operator):
 # Main Window Configuration
 window = tk.Tk()
 window.title("SQL Query Executor")
-window.geometry("1200x800")  # Set a larger window size for a spacious layout
+# # Set the window size to cover the entire screen
+window.geometry(f"{int(4.9/5*window.winfo_screenwidth())}x{window.winfo_screenheight()}")
+
+# window.attributes("-fullscreen", True)
+
+# # Function to exit full screen
+# def exit_fullscreen(event=None):
+#     window.attributes("-fullscreen", False)
+
+# # Bind the Escape key to exit full screen
+# window.bind("<Escape>", exit_fullscreen)
 
 # Define fonts
 bold_font = tkFont.Font(family="Helvetica", size=10, weight="bold")
@@ -29,8 +39,8 @@ def show_help():
 
     # Instructions
     help_text = (
-        "Text Placeholder Lorem Ipsum blabla\n\n"
-        "Enter your hint-based query below:"
+        # "Text Placeholder Lorem Ipsum blabla\n\n"
+        # "Enter your hint-based query below:"
     )
     instructions = tk.Label(help_window, text=help_text, font=("Helvetica", 10), wraplength=450, justify="left")
     instructions.pack(pady=10, padx=10)
@@ -78,7 +88,7 @@ sql_entry = tk.Entry(sql_frame, width=60, font=("Verdana", 12), bg="#e8f4fa", fg
 sql_entry.pack(pady=(5, 10))
 
 execute_sql_button = tk.Button(sql_frame, text="Execute SQL Query", command=lambda: execute_query("sql"), font=("Segoe UI", 10, "bold"), bg="#4a90e2", fg="#ffffff")
-execute_sql_button.pack(side="left", pady=5, padx=(0, 5))
+execute_sql_button.pack(pady=10)
 
 # AQP Query Section
 aqp_frame = tk.Frame(top_frame)
@@ -91,10 +101,10 @@ aqp_entry = tk.Entry(aqp_frame, width=60, font=("Verdana", 12), bg="#e8f4fa", fg
 aqp_entry.pack(pady=(5, 10))
 
 execute_aqp_button = tk.Button(aqp_frame, text="Execute AQP Query", command=lambda: execute_query("aqp"), font=("Segoe UI", 10, "bold"), bg="#4a90e2", fg="#ffffff")
-execute_aqp_button.pack(side="left", pady=5, padx=(0, 5))
+execute_aqp_button.pack(pady=10)
 
-help_aqp_button = tk.Button(aqp_frame, image=help_icon, command=show_help, bg="#ffffff", borderwidth=0)
-help_aqp_button.pack(side="left", padx=5)
+help_aqp_button = tk.Button(aqp_frame, image=help_icon, command=show_help, borderwidth=0)
+help_aqp_button.pack(padx=2)
 
 # Bottom Frame for Outputs
 bottom_frame = tk.Frame(window)
