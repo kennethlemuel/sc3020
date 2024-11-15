@@ -10,10 +10,10 @@ def connect_db():
 
         # Defining parameters
         dbname = "TPC-H"
-        user = "wewechoo"
-        password = "zh020200"
-        host = "192.168.172.248"
-        port = "5432"  # Default PostgreSQL port is 5432
+        user = "postgres"
+        password = "postgres"
+        host = "127.0.0.1"
+        port = "5433"  # Default PostgreSQL port is 5432
 
         # Create a connection to the database
         connection = psycopg2.connect(
