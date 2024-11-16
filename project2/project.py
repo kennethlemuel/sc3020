@@ -112,7 +112,7 @@ top_frame.grid(row=0, column=0, columnspan=2, pady=20)
 
 # Load Help Icon
 try:
-    help_icon = Image.open("project2\help_icon.png").resize((20, 20), Image.LANCZOS)
+    help_icon = Image.open("help_icon.png").resize((20, 20), Image.LANCZOS)
     help_icon = ImageTk.PhotoImage(help_icon)
 except Exception as e:
     print("Help icon not found:", e)
@@ -169,37 +169,40 @@ sql_output_frame = tk.LabelFrame(bottom_frame, text="SQL Query Output", font=("V
 sql_output_frame.grid(row=0, column=0, padx=25, sticky="nsew")
 sql_output_frame.grid_rowconfigure(0, weight=1)
 
-sql_image_canvas = tk.Canvas(sql_output_frame, bg="#ffffff")  # Create a canvas for the SQL image
+sql_image_canvas = tk.Canvas(sql_output_frame, bg="#ffffff")  # Canvas for SQL image
 sql_image_canvas.pack(side="left", fill=tk.BOTH, expand=True, padx=5)
 
-sql_scrollbar = tk.Scrollbar(sql_output_frame, orient="vertical", command=sql_image_canvas.yview)  # Vertical scrollbar
-sql_scrollbar.pack(side="right", fill="y")
+# Add a frame for steps with scrollbar
+sql_steps_frame = tk.Frame(sql_output_frame)
+sql_steps_frame.pack(side="right", fill=tk.BOTH, expand=True, padx=5)
 
-sql_image_canvas.configure(yscrollcommand=sql_scrollbar.set)
+sql_steps_scrollbar = tk.Scrollbar(sql_steps_frame, orient="vertical")  # Scrollbar for query steps
+sql_steps_scrollbar.pack(side="right", fill="y")
 
-#SQL steps output area
-sql_steps_output = tk.Label(sql_output_frame, text="Query steps will appear here.", font=("Verdana", 10), wraplength=300)
-sql_steps_output.pack(side="right", fill="both", expand=True, padx=5)
+sql_steps_output = tk.Text(sql_steps_frame, wrap="word", font=("Verdana", 10), yscrollcommand=sql_steps_scrollbar.set)
+sql_steps_output.pack(side="left", fill="both", expand=True)
 
-
+sql_steps_scrollbar.config(command=sql_steps_output.yview)
 
 # AQP Output Section
 aqp_output_frame = tk.LabelFrame(bottom_frame, text="AQP Query Output", font=("Verdana", 12, "bold"))
 aqp_output_frame.grid(row=0, column=1, padx=25, sticky="nsew")
 aqp_output_frame.grid_rowconfigure(0, weight=1)
 
-aqp_image_canvas = tk.Canvas(aqp_output_frame, bg="#ffffff")  # Create a canvas for the AQP image
+aqp_image_canvas = tk.Canvas(aqp_output_frame, bg="#ffffff")  # Canvas for AQP image
 aqp_image_canvas.pack(side="left", fill=tk.BOTH, expand=True, padx=5)
 
-aqp_scrollbar = tk.Scrollbar(aqp_output_frame, orient="vertical", command=aqp_image_canvas.yview)  # Vertical scrollbar
-aqp_scrollbar.pack(side="right", fill="y")
+# Add a frame for steps with scrollbar
+aqp_steps_frame = tk.Frame(aqp_output_frame)
+aqp_steps_frame.pack(side="right", fill=tk.BOTH, expand=True, padx=5)
 
-aqp_image_canvas.configure(yscrollcommand=aqp_scrollbar.set)
+aqp_steps_scrollbar = tk.Scrollbar(aqp_steps_frame, orient="vertical")  # Scrollbar for query steps
+aqp_steps_scrollbar.pack(side="right", fill="y")
 
-# AQP steps output area
-aqp_steps_output = tk.Label(aqp_output_frame, text="AQP steps will appear here.", font=("Verdana", 10), wraplength=300)
-aqp_steps_output.pack(side="right", fill="both", expand=True, padx=5)
+aqp_steps_output = tk.Text(aqp_steps_frame, wrap="word", font=("Verdana", 10), yscrollcommand=aqp_steps_scrollbar.set)
+aqp_steps_output.pack(side="left", fill="both", expand=True)
 
+aqp_steps_scrollbar.config(command=aqp_steps_output.yview)
 
 # Function to execute queries and update outputs
 def execute_query(query_type):
@@ -208,7 +211,7 @@ def execute_query(query_type):
         query = sql_entry.get()
     else:
         aqp_query = aqp_entry.get()
-    display_canvas = sql_image_canvas if query_type == "sql" else aqp_image_canvas  # Use the scrollable canvas
+    display_canvas = sql_image_canvas if query_type == "sql" else aqp_image_canvas  # Use the canvas
     steps_output = sql_steps_output if query_type == "sql" else aqp_steps_output
     cost_label = qep_cost_label if query_type == "sql" else aqp_cost_label
 
@@ -217,19 +220,22 @@ def execute_query(query_type):
             connect_db()
             if query_type == "sql":
                 qep_digraph, query_cost = get_qep(query)
-                display_image(qep_digraph, display_canvas)  # Update to use the canvas
+                display_image(qep_digraph, display_canvas)  # Display image on the canvas
                 statements, _ = get_qep_statements()
-                steps_output.config(text='\n'.join(statements))
+                steps_output.delete("1.0", tk.END)  # Clear existing content
+                steps_output.insert(tk.END, '\n'.join(statements))  # Insert new steps
                 cost_label.config(text=f"QEP Cost: {query_cost}")
             elif query_type == "aqp":
                 aqp_digraph, aqp_query_cost = get_aqp(query, aqp_query)
-                display_image(aqp_digraph, display_canvas)  # Update to use the canvas
+                display_image(aqp_digraph, display_canvas)  # Display image on the canvas
                 statements, _ = get_qep_statements()
-                steps_output.config(text='\n'.join(statements))
+                steps_output.delete("1.0", tk.END)  # Clear existing content
+                steps_output.insert(tk.END, '\n'.join(statements))  # Insert new steps
                 cost_label.config(text=f"AQP Cost: {aqp_query_cost}")
             disconnect_db()
         except Exception as e:
-            steps_output.config(text=f"Error: {str(e)}")
+            steps_output.delete("1.0", tk.END)  # Clear existing content
+            steps_output.insert(tk.END, f"Error: {str(e)}")  # Show error
 
     query_thread = Thread(target=execute_query_thread)
     query_thread.start()
