@@ -154,6 +154,16 @@ execute_aqp_button.pack(pady=10)
 help_aqp_button = tk.Button(aqp_frame, image=help_icon, command=show_help, borderwidth=0)
 help_aqp_button.pack(padx=2)
 
+# Cost Comparison at the top
+cost_panel = tk.Frame(top_frame, height=40, bg="#f0f0f0")
+cost_panel.grid(row=1, column=0, columnspan=2, sticky="nsew")
+
+qep_cost_label = tk.Label(cost_panel, text=f"QEP Cost: {query_cost}", font=("Segoe UI", 10, "bold"), fg="#ff4d4d" if aqp_query_cost < query_cost else "#27ae60", bg="#f0f0f0")
+qep_cost_label.pack(side="left", padx=10)
+
+aqp_cost_label = tk.Label(cost_panel, text=f"AQP Cost: {aqp_query_cost}", font=("Segoe UI", 10, "bold"), fg="#27ae60" if aqp_query_cost < query_cost else "#ff4d4d", bg="#f0f0f0")
+aqp_cost_label.pack(side="right", padx=10)
+
 # Bottom Frame for Outputs
 bottom_frame = tk.Frame(window)
 bottom_frame.grid(row=1, column=0, columnspan=2, sticky="ns")
@@ -166,7 +176,7 @@ bottom_frame.grid_rowconfigure(0, weight=1)  # Allow row 0 to expand vertically
 
 # SQL Output Section
 sql_output_frame = tk.LabelFrame(bottom_frame, text="SQL Query Output", font=("Verdana", 12, "bold"))
-sql_output_frame.grid(row=0, column=0, padx=25, sticky="nsew")
+sql_output_frame.grid(row=0, column=0, padx=25, pady= 25, sticky="nsew")
 sql_output_frame.grid_rowconfigure(0, weight=1)
 
 sql_image_canvas = tk.Canvas(sql_output_frame, bg="#ffffff")  # Canvas for SQL image
@@ -186,7 +196,7 @@ sql_steps_scrollbar.config(command=sql_steps_output.yview)
 
 # AQP Output Section
 aqp_output_frame = tk.LabelFrame(bottom_frame, text="AQP Query Output", font=("Verdana", 12, "bold"))
-aqp_output_frame.grid(row=0, column=1, padx=25, sticky="nsew")
+aqp_output_frame.grid(row=0, column=1, padx=25, pady=25, sticky="nsew")
 aqp_output_frame.grid_rowconfigure(0, weight=1)
 
 aqp_image_canvas = tk.Canvas(aqp_output_frame, bg="#ffffff")  # Canvas for AQP image
@@ -382,15 +392,15 @@ def display_image(image_path, canvas):
         print(f"Error displaying image: {e}")
 
 
-# Cost Comparison at the bottom
-cost_panel = tk.Frame(window, height=40, bg="#f0f0f0")
-cost_panel.grid(row=2, column=0, columnspan=2, sticky="nsew")
+# # Cost Comparison at the bottom
+# cost_panel = tk.Frame(window, height=40, bg="#f0f0f0")
+# cost_panel.grid(row=2, column=0, columnspan=2, sticky="nsew")
 
-qep_cost_label = tk.Label(cost_panel, text=f"QEP Cost: {query_cost}", font=("Segoe UI", 10, "bold"), fg="#ff4d4d" if aqp_query_cost < query_cost else "#27ae60", bg="#f0f0f0")
-qep_cost_label.pack(side="left", padx=10)
+# qep_cost_label = tk.Label(cost_panel, text=f"QEP Cost: {query_cost}", font=("Segoe UI", 10, "bold"), fg="#ff4d4d" if aqp_query_cost < query_cost else "#27ae60", bg="#f0f0f0")
+# qep_cost_label.pack(side="left", padx=10)
 
-aqp_cost_label = tk.Label(cost_panel, text=f"AQP Cost: {aqp_query_cost}", font=("Segoe UI", 10, "bold"), fg="#27ae60" if aqp_query_cost < query_cost else "#ff4d4d", bg="#f0f0f0")
-aqp_cost_label.pack(side="left", padx=10)
+# aqp_cost_label = tk.Label(cost_panel, text=f"AQP Cost: {aqp_query_cost}", font=("Segoe UI", 10, "bold"), fg="#27ae60" if aqp_query_cost < query_cost else "#ff4d4d", bg="#f0f0f0")
+# aqp_cost_label.pack(side="left", padx=10)
 
 # Start the mainloop
 window.mainloop()
