@@ -32,44 +32,71 @@ window.geometry(f"{int(4.9/5*window.winfo_screenwidth())}x{window.winfo_screenhe
 bold_font = tkFont.Font(family="Helvetica", size=10, weight="bold")
 
 # Function to display help popup with pg_hint_plan information and an entry box
+# Function to display help popup with pg_hint_plan information and an entry box
 def show_help():
     help_window = tk.Toplevel(window)
     help_window.title("pg_hint_plan Help")
-    help_window.geometry("400x300")
 
-    # Instructions
-    help_text = (
-        "Type the desired scan/join methods in the box provided. There is no need to retype the original query again. Separate each method with a space.\n\n"
-         "Scan Methods:\n\n"
-         "1. SeqScan(table) - Sequential scan will be performed on the table\n"
-         "2. TidScan(table) - Tid scan will be performed on the table\n"
-         "3. IndexScan(table) - Index scan will be performed on the table\n"
-         "4. IndexOnlyScan(table) - Index-only scan will be performed on the table\n"
-         "5. BitmapScan(table) - Bitmap scan will be performed on the table\n\n"
-         
-         "6. NoSeqScan(table) - Sequential scan will NOT be performed on the table\n"
-         "7. NoTidScan(table) - Tid scan will NOT be performed on the table\n"
-         "8. NoIndexScan(table) - Index scan will NOT be performed on the table\n"
-         "9. NoIndexOnlyScan(table) - Index-only scan will NOT be performed on the table\n"
-         "10. NoBitMapScan(table) - Bitmap scan will NOT be performed on the table\n\n"
-         
-         "Join Methods:\n\n"
-         "1. NestLoop(table1 table2) - Nested Loop Join will be performed on these tables\n"
-         "2. HashJoin(table1 table2) - Hash Join will be performed on these tables\n"
-         "3. MergeJoin(table1 table2) - Merge Join will be performed on these tables\n\n"
-         
-         "4. NoNestLoop(table1, table2) - Nested Loop Join will NOT be performed on these tables\n"
-         "5. NoHashJoin(table1, table2) - Hash Join will NOT be performed on these tables\n"
-         "6. NoMergeJoin(table1, table2) - Merge Join will NOT be performed on these tables\n\n"
-         
-         "Join Order:\n\n"
-         "1. Leading(table1, table2) - These two tables will be joined together\n\n"
-         
-         "Join Direction:\n\n"
-         "1. Leading((table1, table2)) - These two tables will be joined together, where table1 is the outer table and table2 is the inner table"
-    )
-    instructions = tk.Label(help_window, text=help_text, font=("Helvetica", 10), wraplength=450, justify="left")
-    instructions.pack(pady=10, padx=10)
+
+    window_width = 800
+    window_height = 700
+    x_position = 100  # Distance from the left edge of the screen
+    y_position = 50   # Distance from the top edge of the screen
+    help_window.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+
+    # Add a scrollbar to the help window
+    help_canvas = tk.Canvas(help_window)
+    help_canvas.pack(side="left", fill="both", expand=True)
+
+    scrollbar = tk.Scrollbar(help_window, orient="vertical", command=help_canvas.yview)
+    scrollbar.pack(side="right", fill="y")
+
+    help_canvas.configure(yscrollcommand=scrollbar.set)
+
+    # Create a frame inside the canvas for the content
+    content_frame = tk.Frame(help_canvas, bg="#f0f0f0")
+    help_canvas.create_window((0, 0), window=content_frame, anchor="nw")
+
+    # Add headers and content as separate Labels
+    sections = [
+        (None,  # No header for the introduction
+         "Type the desired scan/join methods in the box provided. There is no need to retype the original query again. Separate each method with a space.\n\n"),
+        ("Scan Methods:", "1. SeqScan(table) - Sequential scan will be performed on the table\n"
+                          "2. TidScan(table) - Tid scan will be performed on the table\n"
+                          "3. IndexScan(table) - Index scan will be performed on the table\n"
+                          "4. IndexOnlyScan(table) - Index-only scan will be performed on the table\n"
+                          "5. BitmapScan(table) - Bitmap scan will be performed on the table\n\n"
+                          "6. NoSeqScan(table) - Sequential scan will NOT be performed on the table\n"
+                          "7. NoTidScan(table) - Tid scan will NOT be performed on the table\n"
+                          "8. NoIndexScan(table) - Index scan will NOT be performed on the table\n"
+                          "9. NoIndexOnlyScan(table) - Index-only scan will NOT be performed on the table\n"
+                          "10. NoBitMapScan(table) - Bitmap scan will NOT be performed on the table\n"),
+        ("Join Methods:", "1. NestLoop(table1 table2) - Nested Loop Join will be performed on these tables\n"
+                          "2. HashJoin(table1 table2) - Hash Join will be performed on these tables\n"
+                          "3. MergeJoin(table1 table2) - Merge Join will be performed on these tables\n\n"
+                          "4. NoNestLoop(table1, table2) - Nested Loop Join will NOT be performed on these tables\n"
+                          "5. NoHashJoin(table1, table2) - Hash Join will NOT be performed on these tables\n"
+                          "6. NoMergeJoin(table1, table2) - Merge Join will NOT be performed on these tables\n"),
+        ("Join Order:", "1. Leading(table1, table2) - These two tables will be joined together\n\n"),
+        ("Join Direction:", "1. Leading((table1, table2)) - These two tables will be joined together, where table1 is the outer table and table2 is the inner table"),
+    ]
+
+    # Iterate through the sections and add them to the content frame
+    for header, content in sections:
+        if header:  # If there's a header, make it bold
+            header_label = tk.Label(content_frame, text=header, font=("Helvetica", 12, "bold"), bg="#f0f0f0")
+            header_label.pack(anchor="w", pady=(10, 5), padx=10)
+
+        if content:  # Add the content below the header
+            content_label = tk.Label(content_frame, text=content, font=("Helvetica", 10), bg="#f0f0f0", justify="left", wraplength=750)
+            content_label.pack(anchor="w", pady=(0, 5), padx=10)
+
+    # Update scrollable region
+    def update_scrollregion(event):
+        help_canvas.configure(scrollregion=help_canvas.bbox("all"))
+
+    content_frame.bind("<Configure>", update_scrollregion)
+
 
 # Configure the grid layout for the main window
 window.columnconfigure(0, weight=1)
