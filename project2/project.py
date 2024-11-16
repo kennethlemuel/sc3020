@@ -22,14 +22,14 @@ window.title("SQL Query Executor")
 # # Set the window size to cover the entire screen
 window.geometry(f"{int(4.9/5*window.winfo_screenwidth())}x{window.winfo_screenheight()}")
 
-# window.attributes("-fullscreen", True)
+# Set the window size to match the screen resolution
+screen_width = window.winfo_screenwidth()
+screen_height = window.winfo_screenheight()
+window.geometry(f"{screen_width}x{screen_height}")
 
-# # Function to exit full screen
-# def exit_fullscreen(event=None):
-#     window.attributes("-fullscreen", False)
+# Maximize the window
+window.state('zoomed')  # For Windows, ensures the window is maximized in a windowed fullscreen mode.
 
-# # Bind the Escape key to exit full screen
-# window.bind("<Escape>", exit_fullscreen)
 
 # Define fonts
 bold_font = tkFont.Font(family="Helvetica", size=10, weight="bold")
@@ -211,34 +211,40 @@ def execute_query(query_type):
         query = sql_entry.get()
     else:
         aqp_query = aqp_entry.get()
-    display_canvas = sql_image_canvas if query_type == "sql" else aqp_image_canvas  # Use the canvas
+    
+    display_canvas = sql_image_canvas if query_type == "sql" else aqp_image_canvas  # Use the scrollable canvas
     steps_output = sql_steps_output if query_type == "sql" else aqp_steps_output
     cost_label = qep_cost_label if query_type == "sql" else aqp_cost_label
+
+    # Clear the text box and display "Query in progress..."
+    steps_output.delete("1.0", tk.END)
+    steps_output.insert(tk.END, "Query in progress...\n")
 
     def execute_query_thread():
         try:
             connect_db()
             if query_type == "sql":
                 qep_digraph, query_cost = get_qep(query)
-                display_image(qep_digraph, display_canvas)  # Display image on the canvas
+                display_image(qep_digraph, display_canvas)  # Update to use the canvas
                 statements, _ = get_qep_statements()
-                steps_output.delete("1.0", tk.END)  # Clear existing content
-                steps_output.insert(tk.END, '\n'.join(statements))  # Insert new steps
+                steps_output.delete("1.0", tk.END)  # Clear the text box
+                steps_output.insert(tk.END, '\n'.join(statements))  # Add actual query steps
                 cost_label.config(text=f"QEP Cost: {query_cost}")
             elif query_type == "aqp":
                 aqp_digraph, aqp_query_cost = get_aqp(query, aqp_query)
-                display_image(aqp_digraph, display_canvas)  # Display image on the canvas
+                display_image(aqp_digraph, display_canvas)  # Update to use the canvas
                 statements, _ = get_qep_statements()
-                steps_output.delete("1.0", tk.END)  # Clear existing content
-                steps_output.insert(tk.END, '\n'.join(statements))  # Insert new steps
+                steps_output.delete("1.0", tk.END)  # Clear the text box
+                steps_output.insert(tk.END, '\n'.join(statements))  # Add actual query steps
                 cost_label.config(text=f"AQP Cost: {aqp_query_cost}")
             disconnect_db()
         except Exception as e:
-            steps_output.delete("1.0", tk.END)  # Clear existing content
-            steps_output.insert(tk.END, f"Error: {str(e)}")  # Show error
+            steps_output.delete("1.0", tk.END)  # Clear the text box
+            steps_output.insert(tk.END, f"Error: {str(e)}\n")  # Add error message
 
     query_thread = Thread(target=execute_query_thread)
     query_thread.start()
+
 
 # Function to open the image in a full-screen window with scrollwheel zoom
 def open_full_image(image_path):
