@@ -158,13 +158,15 @@ def execute_query(query_type):
         try:
             connect_db()
             if query_type == "sql":
-                qep_digraph, qep_json_structure, query_cost = get_qep(query)
+                qep_digraph, query_cost = get_qep(query)
+                print(qep_digraph)
                 display_image(qep_digraph, display_label)
                 statements, _ = get_qep_statements()
                 steps_output.config(text='\n'.join(statements))
                 cost_label.config(text=f"QEP Cost: {query_cost}")
             elif query_type == "aqp":
                 aqp_digraph, aqp_query_cost = get_aqp(query)
+                print(aqp_digraph)
                 display_image(aqp_digraph, display_label)
                 statements, _ = get_qep_statements()
                 steps_output.config(text='\n'.join(statements))
@@ -191,10 +193,10 @@ def display_image(image_path, display_label):
 cost_panel = tk.Frame(window, height=40, bg="#f0f0f0")
 cost_panel.grid(row=2, column=0, columnspan=2, sticky="nsew")
 
-qep_cost_label = tk.Label(cost_panel, text=f"QEP Cost: {query_cost}", font=("Segoe UI", 10, "bold"), fg="#ff4d4d", bg="#f0f0f0")
+qep_cost_label = tk.Label(cost_panel, text=f"QEP Cost: {query_cost}", font=("Segoe UI", 10, "bold"), fg="#ff4d4d" if aqp_query_cost < query_cost else "#27ae60", bg="#f0f0f0")
 qep_cost_label.pack(side="left", padx=10)
 
-aqp_cost_label = tk.Label(cost_panel, text=f"AQP Cost: {aqp_query_cost}", font=("Segoe UI", 10, "bold"), fg="#27ae60", bg="#f0f0f0")
+aqp_cost_label = tk.Label(cost_panel, text=f"AQP Cost: {aqp_query_cost}", font=("Segoe UI", 10, "bold"), fg="#27ae60" if aqp_query_cost < query_cost else "#ff4d4d", bg="#f0f0f0")
 aqp_cost_label.pack(side="left", padx=10)
 
 # Start the mainloop

@@ -10,9 +10,9 @@ def connect_db():
 
         # Defining parameters
         dbname = "TPC-H"
-        user = "postgres"
-        password = "klnva0204"
-        host = "localhost"
+        user = "wewechoo"
+        password = "zh020200"
+        host = "192.168.172.248"
         port = "5432"  # Default PostgreSQL port is 5432
 
         # Create a connection to the database
@@ -56,7 +56,7 @@ def get_qep(query):
             
             # Render and save the image
             dot.render(filename=image_path, cleanup=True)  # ".png" will be automatically added by Graphviz
-            return image_path + ".png", qep_json, qep_cost  # Return the image path and JSON structure
+            return image_path + ".png", qep_cost  # Return the image path and JSON structure
         else:
             return None, None  # Return None for both if "Plan" is not in JSON
         
@@ -65,12 +65,9 @@ def get_qep(query):
         return None, f"Error analyzing the query: {str(e)}"
     
 # Function to execute the SQL query
-def get_aqp(query, hashjoin_enabled):
+def get_aqp(query):
     try:
         explain_query = f"EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) {query}"
-        
-        if(hashjoin_enabled == False):
-            explain_query = "SET enable_hashjoin TO off; " + explain_query
         
         cursor.execute(explain_query)
         global qep_json, qep_cost
@@ -83,7 +80,15 @@ def get_aqp(query, hashjoin_enabled):
             dot = Digraph(comment="Query Execution Plan")
             dot.graph_attr['bgcolor'] = 'lightyellow'
             add_nodes(dot, qep_json["Plan"])
-            return dot, qep_cost
+            
+            # Define the file path for the QEP image
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            image_path = os.path.join(base_dir, "aqp_tree")
+            dot.format = 'png'
+            
+            # Render and save the image
+            dot.render(filename=image_path, cleanup=True)  # ".png" will be automatically added by Graphviz
+            return image_path + ".png", qep_cost  # Return the image path and JSON structure
         else:
             return None
         
@@ -161,6 +166,7 @@ def explain_node_type(node_type):
         'Limit': 'Limits the number of rows returned by a subplan.',
         'LockRows': 'Acquires a row-level lock on rows returned by a subplan.',
         'Materialize': 'Materializes the results of a subquery.',
+        'Memoize': 'Stores the result of the query in a cache which can be reused again later.',
         'Merge Append': 'Merges the results of multiple scans or subqueries.',
         'Merge Join': 'Joins two pre-sorted tables by merging their sorted rows.',
         'Nested Loop': 'Joins two tables by nested loop iteration over the outer and inner tables.',
