@@ -39,26 +39,37 @@ def show_help():
 
     # Instructions
     help_text = (
-        # "Text Placeholder Lorem Ipsum blabla\n\n"
-        # "Enter your hint-based query below:"
+        "Type the desired scan/join methods in the box provided. There is no need to retype the original query again. Separate each method with a space.\n\n"
+         "Scan Methods:\n\n"
+         "1. SeqScan(table) - Sequential scan will be performed on the table\n"
+         "2. TidScan(table) - Tid scan will be performed on the table\n"
+         "3. IndexScan(table) - Index scan will be performed on the table\n"
+         "4. IndexOnlyScan(table) - Index-only scan will be performed on the table\n"
+         "5. BitmapScan(table) - Bitmap scan will be performed on the table\n\n"
+         
+         "6. NoSeqScan(table) - Sequential scan will NOT be performed on the table\n"
+         "7. NoTidScan(table) - Tid scan will NOT be performed on the table\n"
+         "8. NoIndexScan(table) - Index scan will NOT be performed on the table\n"
+         "9. NoIndexOnlyScan(table) - Index-only scan will NOT be performed on the table\n"
+         "10. NoBitMapScan(table) - Bitmap scan will NOT be performed on the table\n\n"
+         
+         "Join Methods:\n\n"
+         "1. NestLoop(table1 table2) - Nested Loop Join will be performed on these tables\n"
+         "2. HashJoin(table1 table2) - Hash Join will be performed on these tables\n"
+         "3. MergeJoin(table1 table2) - Merge Join will be performed on these tables\n\n"
+         
+         "4. NoNestLoop(table1, table2) - Nested Loop Join will NOT be performed on these tables\n"
+         "5. NoHashJoin(table1, table2) - Hash Join will NOT be performed on these tables\n"
+         "6. NoMergeJoin(table1, table2) - Merge Join will NOT be performed on these tables\n\n"
+         
+         "Join Order:\n\n"
+         "1. Leading(table1, table2) - These two tables will be joined together\n\n"
+         
+         "Join Direction:\n\n"
+         "1. Leading((table1, table2)) - These two tables will be joined together, where table1 is the outer table and table2 is the inner table"
     )
     instructions = tk.Label(help_window, text=help_text, font=("Helvetica", 10), wraplength=450, justify="left")
     instructions.pack(pady=10, padx=10)
-
-    # Entry box for the query
-    hint_query_entry = tk.Text(help_window, width=60, height=5, font=("Verdana", 10))
-    hint_query_entry.insert("1.0", "EXPLAIN /*+ NestLoop(orders customer) */ SELECT * FROM orders INNER JOIN customer ON orders.o_custkey = customer.c_custkey;")
-    hint_query_entry.pack(pady=10, padx=10)
-
-    # Function to apply the hint query to the main SQL entry box
-    def apply_example():
-        sql_entry.delete(0, tk.END)
-        sql_entry.insert(0, hint_query_entry.get("1.0", "end-1c"))  # Insert the query without the newline at the end
-        help_window.destroy()
-
-    # Button to apply the hint query
-    apply_button = tk.Button(help_window, text="Apply Example to SQL Query", command=apply_example, font=("Segoe UI", 10, "bold"), bg="#4a90e2", fg="#ffffff")
-    apply_button.pack(pady=10)
 
 # Configure the grid layout for the main window
 window.columnconfigure(0, weight=1)
