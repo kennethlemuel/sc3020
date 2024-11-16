@@ -191,6 +191,97 @@ def execute_query(query_type):
     query_thread = Thread(target=execute_query_thread)
     query_thread.start()
 
+# Function to open the image in a full-screen window with scrollwheel zoom
+def open_full_image(image_path):
+    try:
+        # Create a new full-screen window
+        full_image_window = tk.Toplevel(window)
+        full_image_window.title("Full Image Viewer")
+        full_image_window.attributes("-fullscreen", True)
+
+        # Bind the Escape key to exit full-screen mode
+        full_image_window.bind("<Escape>", lambda e: full_image_window.destroy())
+
+        # Add a close button
+        close_button = tk.Button(
+            full_image_window,
+            text="Exit Fullscreen",
+            font=("Helvetica", 12),
+            bg="#ff4d4d",
+            fg="white",
+            command=full_image_window.destroy
+        )
+        close_button.pack(side=tk.TOP, anchor="e", padx=10, pady=10)
+
+        # Create a canvas for the image
+        canvas = tk.Canvas(full_image_window, bg="black")
+        canvas.pack(fill=tk.BOTH, expand=True)
+
+        # Open the image
+        image = Image.open(image_path).convert("RGB")
+        tk_image = ImageTk.PhotoImage(image)
+        canvas.image = tk_image  # Prevent garbage collection
+
+        # Add the image to the canvas
+        img_id = canvas.create_image(0, 0, anchor="nw", image=tk_image)
+
+        # Update the scroll region
+        canvas.config(scrollregion=canvas.bbox(img_id))
+
+        # Track zoom level
+        scale = 1.0
+
+        # Function to zoom the image
+        def zoom(event):
+            nonlocal scale
+            zoom_factor = 1.1 if event.delta > 0 else 0.9  # Zoom in or out
+            scale *= zoom_factor
+
+            # Resize the image while maintaining aspect ratio
+            new_width = int(image.width * scale)
+            new_height = int(image.height * scale)
+            resized_image = image.resize((new_width, new_height), Image.LANCZOS)
+            tk_resized_image = ImageTk.PhotoImage(resized_image)
+
+            # Update the image on the canvas
+            canvas.itemconfig(img_id, image=tk_resized_image)
+            canvas.image = tk_resized_image  # Prevent garbage collection
+
+            # Center the image on the canvas
+            canvas.coords(img_id, canvas.winfo_width() // 2, canvas.winfo_height() // 2)
+
+            # Update scroll region to fit the resized image
+            canvas.config(scrollregion=canvas.bbox(img_id))
+
+        # Bind the scrollwheel to the zoom function
+        canvas.bind("<MouseWheel>", zoom)
+
+        # Panning variables
+        pan_start_x = 0
+        pan_start_y = 0
+
+        # Function to start panning
+        def start_pan(event):
+            nonlocal pan_start_x, pan_start_y
+            pan_start_x = event.x
+            pan_start_y = event.y
+
+        # Function to execute panning
+        def do_pan(event):
+            nonlocal pan_start_x, pan_start_y
+            dx = event.x - pan_start_x
+            dy = event.y - pan_start_y
+            canvas.move("all", dx, dy)
+            pan_start_x = event.x
+            pan_start_y = event.y
+
+        # Bind mouse events for panning
+        canvas.bind("<ButtonPress-1>", start_pan)
+        canvas.bind("<B1-Motion>", do_pan)
+
+    except Exception as e:
+        print(f"Error displaying full image: {e}")
+
 # Function to display the image and fit it to the canvas width
 def display_image(image_path, canvas):
     try:
@@ -234,11 +325,12 @@ def display_image(image_path, canvas):
 
         # Store the image reference to prevent garbage collection
         canvas.image = tk_image
+
+        # Bind double-click to open the full image
+        canvas.bind("<Double-1>", lambda event: open_full_image(image_path))
+
     except Exception as e:
         print(f"Error displaying image: {e}")
-
-
-
 
 
 # Cost Comparison at the bottom
