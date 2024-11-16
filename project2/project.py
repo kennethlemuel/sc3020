@@ -67,7 +67,7 @@ window.rowconfigure(1, weight=1)
 
 # Top Frame for SQL and AQP Sections
 top_frame = tk.Frame(window)
-top_frame.grid(row=0, column=0, columnspan=2, pady=(100,20))
+top_frame.grid(row=0, column=0, columnspan=2, pady=20)
 
 # Load Help Icon
 try:
@@ -92,8 +92,8 @@ sql_entry.pack(pady=(5, 10))
 execute_sql_button = tk.Button(sql_frame, text="Execute SQL Query", command=lambda: execute_query("sql"), font=("Segoe UI", 10, "bold"), bg="#4a90e2", fg="#ffffff")
 execute_sql_button.pack(pady=10)
 
-help_sql_button = tk.Button(sql_frame, image=help_icon, command=show_help, borderwidth=0)
-help_sql_button.pack(padx=2)
+nil_button = tk.Button(sql_frame, borderwidth=0)
+nil_button.pack(padx=2)
 
 # AQP Query Section
 aqp_frame = tk.Frame(top_frame)
@@ -115,15 +115,19 @@ help_aqp_button.pack(padx=2)
 
 # Bottom Frame for Outputs
 bottom_frame = tk.Frame(window)
-bottom_frame.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=20, pady=10)
+bottom_frame.grid(row=1, column=0, columnspan=2, sticky="ns")
 
 # Configure the grid layout for the bottom frame
-bottom_frame.columnconfigure(0, weight=1)
-bottom_frame.columnconfigure(1, weight=1)
+bottom_frame.columnconfigure(0, weight=5)
+bottom_frame.columnconfigure(1, weight=5)
+bottom_frame.grid_rowconfigure(0, weight=1)  # Allow row 0 to expand vertically
+
 
 # SQL Output Section
 sql_output_frame = tk.LabelFrame(bottom_frame, text="SQL Query Output", font=("Verdana", 12, "bold"))
-sql_output_frame.grid(row=0, column=0, padx=20, pady=10, sticky="nsew")
+sql_output_frame.grid(row=0, column=0, padx=25, sticky="nsew")
+sql_output_frame.grid_rowconfigure(0, weight=1) 
+
 
 qep_display = tk.Label(sql_output_frame, font=("Verdana", 12), bg="#ffffff", width=40, height=20)
 qep_display.pack(side="left", fill=tk.BOTH, expand=True, padx=5)
@@ -133,7 +137,9 @@ sql_steps_output.pack(side="right", fill="both", expand=True, padx=5)
 
 # AQP Output Section
 aqp_output_frame = tk.LabelFrame(bottom_frame, text="AQP Query Output", font=("Verdana", 12, "bold"))
-aqp_output_frame.grid(row=0, column=1, padx=20, pady=10, sticky="nsew")
+aqp_output_frame.grid(row=0, column=1, padx=25, sticky="nsew")
+aqp_output_frame.grid_rowconfigure(0, weight=1)
+
 
 aqp_display = tk.Label(aqp_output_frame, font=("Verdana", 12), bg="#ffffff", width=40, height=20)
 aqp_display.pack(side="left", fill=tk.BOTH, expand=True, padx=5)
