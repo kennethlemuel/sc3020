@@ -82,7 +82,7 @@ top_frame.grid(row=0, column=0, columnspan=2, pady=20)
 
 # Load Help Icon
 try:
-    help_icon = Image.open("project2\help_icon.png").resize((20, 20), Image.LANCZOS)
+    help_icon = Image.open("help_icon.png").resize((20, 20), Image.LANCZOS)
     help_icon = ImageTk.PhotoImage(help_icon)
 except Exception as e:
     print("Help icon not found:", e)
@@ -137,31 +137,44 @@ bottom_frame.grid_rowconfigure(0, weight=1)  # Allow row 0 to expand vertically
 # SQL Output Section
 sql_output_frame = tk.LabelFrame(bottom_frame, text="SQL Query Output", font=("Verdana", 12, "bold"))
 sql_output_frame.grid(row=0, column=0, padx=25, sticky="nsew")
-sql_output_frame.grid_rowconfigure(0, weight=1) 
+sql_output_frame.grid_rowconfigure(0, weight=1)
 
+sql_image_canvas = tk.Canvas(sql_output_frame, bg="#ffffff")  # Create a canvas for the SQL image
+sql_image_canvas.pack(side="left", fill=tk.BOTH, expand=True, padx=5)
 
-qep_display = tk.Label(sql_output_frame, font=("Verdana", 12), bg="#ffffff", width=40, height=20)
-qep_display.pack(side="left", fill=tk.BOTH, expand=True, padx=5)
+sql_scrollbar = tk.Scrollbar(sql_output_frame, orient="vertical", command=sql_image_canvas.yview)  # Vertical scrollbar
+sql_scrollbar.pack(side="right", fill="y")
 
+sql_image_canvas.configure(yscrollcommand=sql_scrollbar.set)
+
+#SQL steps output area
 sql_steps_output = tk.Label(sql_output_frame, text="Query steps will appear here.", font=("Verdana", 10), wraplength=300)
 sql_steps_output.pack(side="right", fill="both", expand=True, padx=5)
+
+
 
 # AQP Output Section
 aqp_output_frame = tk.LabelFrame(bottom_frame, text="AQP Query Output", font=("Verdana", 12, "bold"))
 aqp_output_frame.grid(row=0, column=1, padx=25, sticky="nsew")
 aqp_output_frame.grid_rowconfigure(0, weight=1)
 
+aqp_image_canvas = tk.Canvas(aqp_output_frame, bg="#ffffff")  # Create a canvas for the AQP image
+aqp_image_canvas.pack(side="left", fill=tk.BOTH, expand=True, padx=5)
 
-aqp_display = tk.Label(aqp_output_frame, font=("Verdana", 12), bg="#ffffff", width=40, height=20)
-aqp_display.pack(side="left", fill=tk.BOTH, expand=True, padx=5)
+aqp_scrollbar = tk.Scrollbar(aqp_output_frame, orient="vertical", command=aqp_image_canvas.yview)  # Vertical scrollbar
+aqp_scrollbar.pack(side="right", fill="y")
 
+aqp_image_canvas.configure(yscrollcommand=aqp_scrollbar.set)
+
+# AQP steps output area
 aqp_steps_output = tk.Label(aqp_output_frame, text="AQP steps will appear here.", font=("Verdana", 10), wraplength=300)
 aqp_steps_output.pack(side="right", fill="both", expand=True, padx=5)
+
 
 # Function to execute queries and update outputs
 def execute_query(query_type):
     query = sql_entry.get() if query_type == "sql" else aqp_entry.get()
-    display_label = qep_display if query_type == "sql" else aqp_display
+    display_canvas = sql_image_canvas if query_type == "sql" else aqp_image_canvas  # Use the scrollable canvas
     steps_output = sql_steps_output if query_type == "sql" else aqp_steps_output
     cost_label = qep_cost_label if query_type == "sql" else aqp_cost_label
 
@@ -171,14 +184,14 @@ def execute_query(query_type):
             if query_type == "sql":
                 qep_digraph, query_cost = get_qep(query)
                 print(qep_digraph)
-                display_image(qep_digraph, display_label)
+                display_image(qep_digraph, display_canvas)  # Update to use the canvas
                 statements, _ = get_qep_statements()
                 steps_output.config(text='\n'.join(statements))
                 cost_label.config(text=f"QEP Cost: {query_cost}")
             elif query_type == "aqp":
                 aqp_digraph, aqp_query_cost = get_aqp(query)
                 print(aqp_digraph)
-                display_image(aqp_digraph, display_label)
+                display_image(aqp_digraph, display_canvas)  # Update to use the canvas
                 statements, _ = get_qep_statements()
                 steps_output.config(text='\n'.join(statements))
                 cost_label.config(text=f"AQP Cost: {aqp_query_cost}")
@@ -189,16 +202,55 @@ def execute_query(query_type):
     query_thread = Thread(target=execute_query_thread)
     query_thread.start()
 
-# Function to display the image
-def display_image(image_path, display_label):
+# Function to display the image and fit it to the canvas width
+def display_image(image_path, canvas):
     try:
+        # Open the image
         image = Image.open(image_path).convert("RGB")
-        resized_image = image.resize((300, 300), Image.LANCZOS)
+
+        # Get the current canvas width and height
+        canvas_width = canvas.winfo_width()
+        canvas_height = canvas.winfo_height()
+
+        # Ensure the canvas has been rendered and dimensions are available
+        if canvas_width == 1 or canvas_height == 1:  # Default dimensions before rendering
+            canvas.update_idletasks()  # Force the canvas to update
+            canvas_width = canvas.winfo_width()
+            canvas_height = canvas.winfo_height()
+
+        # Maintain aspect ratio while resizing
+        img_aspect_ratio = image.width / image.height
+        canvas_aspect_ratio = canvas_width / canvas_height
+
+        if img_aspect_ratio > canvas_aspect_ratio:
+            # Fit by width
+            new_width = canvas_width
+            new_height = int(canvas_width / img_aspect_ratio)
+        else:
+            # Fit by height
+            new_height = canvas_height
+            new_width = int(canvas_height * img_aspect_ratio)
+
+        resized_image = image.resize((new_width, new_height), Image.LANCZOS)
         tk_image = ImageTk.PhotoImage(resized_image)
-        display_label.config(image=tk_image)
-        display_label.image = tk_image
+
+        # Clear any previous content on the canvas
+        canvas.delete("all")
+
+        # Display the image at the center of the canvas
+        canvas.create_image(canvas_width // 2, canvas_height // 2, anchor="center", image=tk_image)
+
+        # Update the scroll region to match the image dimensions
+        canvas.config(scrollregion=canvas.bbox("all"))
+
+        # Store the image reference to prevent garbage collection
+        canvas.image = tk_image
     except Exception as e:
-        print(e)
+        print(f"Error displaying image: {e}")
+
+
+
+
 
 # Cost Comparison at the bottom
 cost_panel = tk.Frame(window, height=40, bg="#f0f0f0")
