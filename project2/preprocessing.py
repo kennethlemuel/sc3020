@@ -56,7 +56,7 @@ def get_qep(query):
             
             # Render and save the image
             dot.render(filename=image_path, cleanup=True)  # ".png" will be automatically added by Graphviz
-            return image_path + ".png", qep_cost  # Return the image path and JSON structure
+            return image_path + ".png", qep_cost  # Return the image path and plan cost
         else:
             return None, None  # Return None for both if "Plan" is not in JSON
         
@@ -65,15 +65,17 @@ def get_qep(query):
         return None, f"Error analyzing the query: {str(e)}"
     
 # Function to execute the SQL query
-def get_aqp(query):
+def get_aqp(query, aqp_query):
     try:
-        explain_query = f"EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) {query}"
-        
+        explain_query = f"EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) /*+ {aqp_query} */ {query}"
+        print(explain_query)
         cursor.execute(explain_query)
+        print("done")
         global qep_json, qep_cost
         qep_cost = 0.0
         qep_json = cursor.fetchone()[0][0]
         analyze_qep(qep_json['Plan'])
+        
 
         # Check if the QEP image is available in the JSON
         if "Plan" in qep_json:
@@ -88,7 +90,7 @@ def get_aqp(query):
             
             # Render and save the image
             dot.render(filename=image_path, cleanup=True)  # ".png" will be automatically added by Graphviz
-            return image_path + ".png", qep_cost  # Return the image path and JSON structure
+            return image_path + ".png", qep_cost  # Return the image path and plan cost
         else:
             return None
         
@@ -104,15 +106,6 @@ def get_qep_statements():
     else:
         return None
 
-
-def get_buffer_size():
-    cursor.execute("show shared_buffers")
-    return cursor.fetchone()[0]
-
-def get_block_size():
-    cursor.execute("show block_size")
-    return cursor.fetchone()[0]
-
 def add_nodes(dot, plan, parent_id=None, node_id=0):
     if "Node Type" in plan:
         # Extract information from the JSON data
@@ -121,14 +114,12 @@ def add_nodes(dot, plan, parent_id=None, node_id=0):
         total_cost = plan.get('Total Cost', 'N/A')
         relation_name = plan.get('Relation Name', 'N/A')
         index_name = plan.get('Index Name', 'N/A')
-        shared_hit_blocks = plan.get('Shared Hit Blocks', 'N/A')
-        shared_read_blocks = plan.get('Shared Read Blocks', 'N/A')
         global qep_cost
         qep_cost += total_cost
         
 
         # Construct the label with relevant information
-        label = f"{node_type}\nRelation Name: {relation_name}\nIndex Name: {index_name}\nStartup Cost: {startup_cost}\nTotal Cost: {total_cost}\nShared Hit Blocks: {shared_hit_blocks}\nShared Read Blocks: {shared_read_blocks}"
+        label = f"{node_type}\nRelation Name: {relation_name}\nIndex Name: {index_name}\nStartup Cost: {startup_cost}\nTotal Cost: {total_cost}"
         
         # Define a unique identifier for the node
         node_name = f"node{node_id}"

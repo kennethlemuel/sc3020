@@ -6,6 +6,8 @@ from preprocessing import connect_db, get_qep, get_aqp, disconnect_db, get_qep_s
 import tkinter.font as tkFont
 
 # Global variables
+query = ""
+aqp_query = ""
 query_cost = 0
 aqp_query_cost = 0
 operator_selections = {}
@@ -200,7 +202,11 @@ aqp_steps_output.pack(side="right", fill="both", expand=True, padx=5)
 
 # Function to execute queries and update outputs
 def execute_query(query_type):
-    query = sql_entry.get() if query_type == "sql" else aqp_entry.get()
+    global query, aqp_query
+    if query_type == "sql":
+        query = sql_entry.get()
+    else:
+        aqp_query = aqp_entry.get()
     display_canvas = sql_image_canvas if query_type == "sql" else aqp_image_canvas  # Use the scrollable canvas
     steps_output = sql_steps_output if query_type == "sql" else aqp_steps_output
     cost_label = qep_cost_label if query_type == "sql" else aqp_cost_label
@@ -216,8 +222,7 @@ def execute_query(query_type):
                 steps_output.config(text='\n'.join(statements))
                 cost_label.config(text=f"QEP Cost: {query_cost}")
             elif query_type == "aqp":
-                aqp_digraph, aqp_query_cost = get_aqp(query)
-                print(aqp_digraph)
+                aqp_digraph, aqp_query_cost = get_aqp(query, aqp_query)
                 display_image(aqp_digraph, display_canvas)  # Update to use the canvas
                 statements, _ = get_qep_statements()
                 steps_output.config(text='\n'.join(statements))
