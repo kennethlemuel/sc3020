@@ -68,9 +68,7 @@ def get_qep(query):
 def get_aqp(query, aqp_query):
     try:
         explain_query = f"EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) /*+ {aqp_query} */ {query}"
-        print(explain_query)
         cursor.execute(explain_query)
-        print("done")
         global qep_json, qep_cost
         qep_cost = 0.0
         qep_json = cursor.fetchone()[0][0]

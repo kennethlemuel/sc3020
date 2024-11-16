@@ -111,7 +111,7 @@ top_frame.grid(row=0, column=0, columnspan=2, pady=20)
 
 # Load Help Icon
 try:
-    help_icon = Image.open("help_icon.png").resize((20, 20), Image.LANCZOS)
+    help_icon = Image.open("project2\help_icon.png").resize((20, 20), Image.LANCZOS)
     help_icon = ImageTk.PhotoImage(help_icon)
 except Exception as e:
     print("Help icon not found:", e)
@@ -216,7 +216,6 @@ def execute_query(query_type):
             connect_db()
             if query_type == "sql":
                 qep_digraph, query_cost = get_qep(query)
-                print(qep_digraph)
                 display_image(qep_digraph, display_canvas)  # Update to use the canvas
                 statements, _ = get_qep_statements()
                 steps_output.config(text='\n'.join(statements))
