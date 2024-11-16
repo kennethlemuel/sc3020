@@ -2,7 +2,8 @@ import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
 from threading import Thread
-from preprocessing import connect_db, get_qep, get_aqp, disconnect_db, get_qep_statements
+from preprocessing import connect_db, get_qep, disconnect_db, get_qep_statements
+from whatif import get_aqp
 import tkinter.font as tkFont
 
 # Global variables
